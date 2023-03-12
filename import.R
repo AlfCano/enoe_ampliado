@@ -1,27 +1,40 @@
 ## Código R para generar precisiones estadísticas de totales, para las principales estimaciones obtenidas
-##con la Encuesta Telefónica de Ocupación y Empleo 2020 (ETOE).
-# I. Activación de librerías
-rm( list=ls() )
-# Librería para lectura y escritura de archivos con extensión DBF.
-library( foreign )
+##con la Encuesta Telefónica de Ocupación y Empleo 2020 (ENOE).
+# I. Seleccionar el directorio de trabajo, donde se aloja el archivo descargado desde: desde : https://www.inegi.org.mx/contenidos/programas/enoe/15ymas/microdatos/enoe_n_2022_trim3_dbf.zip.
+# en este caso: enoe_n_2022_trim3_dbf.zip
+local({
+## Computar
+setwd()
+})
+# Librería para lectura y escritura de archivos con extensión DBF 
+library( rio ) #
+install_formats()
 # Librería para configurar el diseño complejo de la encuesta y obtener precisiones estadísticas con el método
 # de conglomerados últimos.
 library( survey )
-# II. Selección por parte del usuario del archivo SDEMT0420.DBF, con los campos de las variables
+# II. Selección por parte del usuario del archivo ENOEN_SDEMT322.dbf,
+local({
+## Preparar
+require(rio)
+## Computar
+data <- import("ENOEN_SDEMT322.dbf")
+.GlobalEnv$ENOEN_SDEMT322.data <- data  # asignar a globalenv()
+rk.edit(.GlobalEnv$ENOEN_SDEMT322.data)
+## Imprimir el resultado
+rk.header ("Importar datos genéricos", parameters=list("Nombre de archivo"="ENOEN_SDEMT322.dbf",
+	"Objeto en el que guardar"="ENOEN_SDEMT322.data"))
+})
+
+
+#con los campos de las variables
 # precodificadas de la ETOE 2020, a las que se les calcularan precisiones estadísticas (CLASE1 y CLASE2 ). Se
 # obtendrá un archivo inicial con los registros que cumplan con la condición de residencia.
 # Nota: si no se selecciona adecuadamente el archivo, ejecutar nuevamente esta sección.
-rm( list=ls() )
-arch_dbf <- file.choose(new = FALSE)
-rutaO = paste(dirname(arch_dbf),”/”, sep = “”)
-archO = basename(arch_dbf)
-archOrigen = paste(rutaO, archO, sep = “”)
-sdem.0 <- read.dbf( archOrigen, as.is = FALSE )
-sdem <- sdem.0[which((sdem.0$C_RES == 1 | sdem.0$C_RES == 3) & (sdem.0$R_DEF == “00”)),
-names(sdem.0) %in% c(“EST_D”,”UPM”,”FAC”,”EDA”,”CLASE1”,”CLASE2”)]
-rm( sdem.0 )
-# Visualización de 5 registros del archivo inicial.
-sdem[1:5,]
+sdem <- ENOEN_SDEMT322.data[which((ENOEN_SDEMT322.data$C_RES == 1 | ENOEN_SDEMT322.data$C_RES == 3) & (ENOEN_SDEMT322.data$R_DEF == "00")),
+names(ENOEN_SDEMT322.data) %in% c("EST_D","UPM","FAC","EDA","CLASE1","CLASE2")]
+#rm( ENOEN_SDEMT322.data)
+# Visualización de 6 registros del archivo inicial con la función head.
+head(sdem)
 # III. A partir de los campos CLASE1 y CLASE2, obtención de las variables de empleo:
 # - Población Económicamente Activa (PEA)
 # - Población Ocupada (PO)
