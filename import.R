@@ -43,9 +43,9 @@ head(sdem)
 # - Población No Económicamente Activa Disponible (PNEA_D)
 # - Población No Económicamente Activa No Disponible (PNEA_ND)
 # Adecuación del campo EDA
-sdem.1 <- cbind( sdem[,c(“EST_D”,”UPM”,”FAC”,”CLASE1”,”CLASE2”)], as.numeric(substr(sdem$EDA,1,2)) )
-colnames(sdem.1)[6] <- “EDA”
-rm( sdem )
+sdem.1 <- cbind( sdem[,c("EST_D_TRI","UPM","FAC_TRI","CLASE1","CLASE2")], as.numeric(substr(sdem$EDA,1,2)) )
+colnames(sdem.1)[6] <- "EDA"
+#rm( sdem )
 # Obtención de las variables de empleo PEA, PO, PDA, PNEA, PNEA_D y PNEA_ND.
 PEA <- as.numeric(ifelse((sdem.1$EDA >= 15 & sdem.1$EDA <= 98) & sdem.1$CLASE1 == 1,1,0))
 PO <- as.numeric(ifelse((sdem.1$EDA >= 15 & sdem.1$EDA <= 98) & sdem.1$CLASE2 == 1,1,0))
@@ -54,10 +54,10 @@ PNEA <- as.numeric(ifelse((sdem.1$EDA >= 15 & sdem.1$EDA <= 98) & sdem.1$CLASE1 
 PNEA_D <- as.numeric(ifelse((sdem.1$EDA >= 15 & sdem.1$EDA <= 98) & sdem.1$CLASE2 == 3,1,0))
 PNEA_ND <- as.numeric(ifelse((sdem.1$EDA >= 15 & sdem.1$EDA <= 98) & sdem.1$CLASE2 == 4,1,0))
 # IV. Obtención del archivo con las variables de diseño y análisis, adecuado para obtener precisiones estadísticas.
-sdem.2 <- cbind( sdem.1[,c(“EST_D”,”UPM”,”FAC”)], PEA, PO, PDA, PNEA, PNEA_D, PNEA_ND )
-rm( sdem.1 )
+sdem.2 <- cbind( sdem.1[,c("EST_D_TRI","UPM","FAC_TRI")], PEA, PO, PDA, PNEA, PNEA_D, PNEA_ND )
+#rm( sdem.1 )
 # Visualización de 5 registros del archivo final para el análisis.
-sdem.2[1:5,]
+head(sdem.2)
 # V. Configuración del diseño muestral de la encuesta compleja y especificación del archivo a cargar
 # análisis, en este caso sdem.2.
 design.1 <- svydesign( id = ~UPM, strata = ~EST_D, weights = ~FAC, data = sdem.2, nest=TRUE )
