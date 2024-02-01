@@ -1,0 +1,166 @@
+---
+title: "Título"  
+author: "Autor"
+lang: "es-MX"
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    toc: FALSE
+  bookdown::word_document2:
+    reference_docx: "plantilla_inegi.docx"
+    fig_caption: yes
+    toc: FALSE
+    includes: _bookdown.yml
+header-includes:
+  - |
+    ```{=latex}
+    \usepackage{hyperref}
+    \def\UrlBreaks{\do\/\do-}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+bibliography: Artículo.bib
+csl: chicago-manual-of-style-17th-edition-author-date-realidad-datos-y-espacio-revista-internacional-de-estadistica-y-geografia-inegi.csl
+link-citations: TRUE
+---
+
+```{r preparar, eval=T, echo = F}
+library("knitr")
+library("formatR")
+library("styler")
+library("bookdown")
+# Configúrelo para que las líneas largas en R se ajusten al recuadro de código:
+knitr::opts_chunk$set(tidy="styler", purl = TRUE)
+```
+\newpage  
+
+Plain text. End a line with two spaces.  
+
+To start a new paragraph.  
+
+*italics* and _italics_  
+
+**bold** and __bold__  
+
+superscript^2^  
+
+~~strikethrough~~  
+
+[link](www.rstudio.com)  
+
+# Header 1  
+
+## Header 2  
+
+### Header 3  
+
+#### Header 4  
+
+##### Header 5  
+
+###### Header 6  
+
+endash: --  
+emdash: ---  
+ellipsis: ...  
+inline equation: $A = \pi*r^{2}$  
+
+equationblock:  
+$$E=mSc^{2}$$ 
+ 
+
+Make a code chunk with three back ticks followedby an r in braces. End the chunk with three back ticks:  
+
+```{r fig.cap="Pie Chart"}
+library(plotrix)
+data <- c(19, 21, 54, 12, 36, 12)
+pie3D(data)
+```
+
+***  
+
+```{r fig.cap="Pie Chart"}
+pie3D(data,
+      radius = 0.75)
+``` 
+
+horizontal rule (or slide break):  
+
+***   
+
+> block quote as this  
+
+
+
+* unordered list
+* item 2 with "*".  
+    + sub-item "1".
+    + sub-item 2 with "+".  
+        - sub-sub-item 1 with "-".  
+***
+```{r fig.cap="The mangua"}
+library(viridis)
+image(volcano, col=viridis(200, option="A"))
+```  
+
+1. ordered list
+2. item 2
+    + sub-item 1
+    + sub-item 2  
+        Indent  
+***   
+Footnote ^[Esta en una nota al pie.]
+
+Lo que sigue es una tabla^[Nota: Recuerda dejar una linea en blanco antes de iniciar una tabla]__
+
+
+Table Header | Second Header
+------------- | -------------
+Table Cell | Cell 2
+Cell 3 | Cell 4  
+
+***
+
+# Header 1  
+
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Sed egestas iaculis dapibus. Morbi eros felis, faucibus non aliquam vitae, faucibus id neque. Etiam porttitor elit et neque tincidunt imperdiet. Integer felis purus, luctus ut elit quis, placerat porttitor orci. Proin eget felis fermentum, interdum justo tempor, interdum turpis. Aliquam quis turpis vulputate, porttitor sem at, gravida diam. Proin blandit felis tempor nibh bibendum, eu fringilla felis interdum. Aliquam ac neque a sem maximus iaculis quis sit amet magna.
+
+## Header 2  
+
+> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam at eros ac tortor euismod euismod ac eget eros. Nam nec est ornare, rhoncus est vitae, pretium mauris. Praesent at neque dapibus, consequat erat nec, sodales mi. Praesent interdum urna at metus egestas, et laoreet sapien maximus. Integer faucibus velit id metus egestas vehicula. Nam nulla nunc, congue quis magna in, sagittis semper turpis. Nullam nec lorem metus. Etiam venenatis metus et dolor feugiat convallis. Aliquam erat volutpat. Suspendisse potenti. Nullam iaculis, lacus nec auctor congue, dui dolor pellentesque dolor, a mattis lectus orci et ex. Donec et neque ornare, tempor magna eget, viverra lorem. Cras placerat quam sit amet purus consequat eleifend. [@kosik_dialectica_1965 p. 33 ] 
+
+### Header 3  
+
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Sed egestas iaculis dapibus. Morbi eros felis, faucibus non aliquam vitae, faucibus id neque. Etiam porttitor elit et neque tincidunt imperdiet. Integer felis purus, luctus ut elit quis, placerat porttitor orci. Proin eget felis fermentum, interdum justo tempor, interdum turpis. Aliquam quis turpis vulputate, porttitor sem at, gravida diam. Proin blandit felis tempor nibh bibendum, eu fringilla felis interdum. Aliquam ac neque a sem maximus iaculis quis sit amet magna.
+
+#### Header 4  
+Sed a eros vulputate, ornare orci id, bibendum tellus. Sed maximus, arcu facilisis mollis fringilla, leo augue gravida arcu, fermentum aliquet metus nisi at elit. Donec nec posuere felis. Etiam sed elit mauris. Maecenas quis nisl vel risus placerat ornare. Pellentesque ac pellentesque tellus. Morbi venenatis arcu diam, et porta nulla ultrices at. Aenean cursus id mi suscipit viverra. Pellentesque leo dui, faucibus at mollis mollis, tincidunt ut leo. Suspendisse pulvinar libero eget ultrices semper.  
+
+
+## Header 2  
+Praesent eleifend sapien nec arcu vulputate, vitae maximus orci euismod. Curabitur non sollicitudin mi. Fusce et hendrerit odio. Vestibulum ut dignissim tellus. Sed efficitur ut urna vitae bibendum. Aliquam laoreet orci neque, et molestie ipsum mattis vel. Pellentesque ut lectus id libero scelerisque condimentum vitae sit amet metus. Praesent et risus blandit, porttitor nibh ac, ultrices quam. Proin quis faucibus est. Vivamus non odio vel erat molestie sollicitudin. Etiam sit amet eros dui.  
+
+Sed Kosik [-@kosik_dialectica_1965] condimentum lacus vitae orci cursus facilisis. Integer venenatis, massa non fermentum pretium, tortor sem congue est, quis rhoncus nisi [@guadarrama_cultura_2000]_cultura_2000 tortor ac massa. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Mauris egestas tortor ullamcorper ligula feugiat, ac aliquam tellus imperdiet. Sed dapibus ante pulvinar, finibus enim sit amet, ultricies lacus. Fusce dictum neque quam, vel mollis nunc cursus id. Pellentesque neque leo, faucibus eget libero ac, blandit venenatis sem. Pellentesque ac vestibulum erat. Pellentesque suscipit velit eget volutpat placerat. Vestibulum a dignissim enim. In vitae interdum diam.Make a code chunk with three back ticks followedby an r in braces. End the chunk with three back ticks[@kosik_dialectica_1965].  
+
+***   
+
+* Add BibTeX or CSL bibliographies to the YAML header.  
+Más información [aquí](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html)
+
+\newpage  
+
+# Lista de referencias bibliográficas
+
+
+   
+
+
+  
+
+
