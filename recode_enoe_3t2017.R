@@ -675,7 +675,7 @@ lapply(count.df, nrow)
 ##Crear una sola tabla con SDEM_PEA, COE1 y COE2 y guardar el resultado.
 
 # Se usa unión "NATURAL" con el paquete `dplyr`.
-local({       
+local({
 ##Preparar
 library("dplyr")
 library("lookup")
@@ -683,31 +683,15 @@ library("lookup")
 sdem <- count.df$sdem_pea.df
 coe1 <- count.df$coe1.df
 coe2 <- count.df$coe2.df
-df <-right_join(sdem,
-                coe1, 
-                    by=NULL,
-                    copy=FALSE) %>% 
-      right_join(coe2,
-                     by=NULL,
-                     copy=FALSE)
-etq <- data.frame(cbind(
-"nemonico"=c("cd_a","ent","ur"),
-"descrip"=c("Ciudad autorrepresentada","Entidad","Urbano/Rural")))
-for (i in etq$nemonico) 
-{
-rk.set.label(df[[i]],
-vlookup(i, 
-etq,
-"nemonico",
-"descrip",
-nomatch = NA)
-)}
+df <-right_join(sdem, coe1, by=NULL, copy=FALSE) %>% 
+      right_join(coe2, by=NULL, copy=FALSE)
+etq <- data.frame(cbind("nemonico"=c("cd_a","ent","ur"), "descrip"=c("Ciudad autorrepresentada","Entidad","Urbano/Rural")))
+for (i in etq$nemonico) {
+rk.set.label(df[[i]], vlookup(i, etq, "nemonico", "descrip",nomatch = NA))}
+## Asignar el resultado
 .GlobalEnv[["sdem_coes.df"]] <- df
-}
-)
-
-#Recuento
-nrow(sdem_coes.df)
+})
+nrow(sdem_coes.df) # Recuento
 
 # Filtrar menores de 15 años
 local({
