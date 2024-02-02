@@ -9,7 +9,7 @@ output:
   bookdown::word_document2:
     reference_docx: "plantilla_inegi.docx"
     fig_caption: yes
-    toc: FALSE
+    toc: TRUE
     includes: _bookdown.yml
 header-includes:
   - |
@@ -37,8 +37,15 @@ library("styler")
 library("bookdown")
 # Configúrelo para que las líneas largas en R se ajusten al recuadro de código:
 knitr::opts_chunk$set(tidy="styler", purl = TRUE)
-```
-\newpage  
+```  
+
+```{=latex}
+% Trigger ToC creation in LaTeX
+\tableofcontents
+```  
+
+# Header 1 
+
 
 Plain text. End a line with two spaces.  
 
@@ -66,37 +73,51 @@ superscript^2^
 
 ###### Header 6  
 
-endash: --  
-emdash: ---  
-ellipsis: ...  
-inline equation: $A = \pi*r^{2}$  
+En dash (longer than a hyphen but shorter than an em dash): --  
+Emd ash: ---  
+Ellipsis: ...  
+Inline equation: $A = \pi*r^{2}$  
 
-equationblock:  
+An euation block:  
+
 $$E=mSc^{2}$$ 
+
+Another equationblock:  
+
+$$
+ \frac{n!}{k!(n-k)!} = \binom{n}{k}
+$$
  
 
 Make a code chunk with three back ticks followedby an r in braces. End the chunk with three back ticks:  
 
-```{r fig.cap="Pie Chart"}
+```{r fig.cap="A Pie Chart", purl = TRUE}
 library(plotrix)
 data <- c(19, 21, 54, 12, 36, 12)
 pie3D(data)
 ```
 
-***  
+***
 
-```{r fig.cap="Pie Chart"}
+Una referencia al siguiente apartado, [Header 2](#ref.h2)
+A smaller pie chart:  
+
+```{r fig.cap="Smaller Pie Chart", purl = TRUE}
 pie3D(data,
       radius = 0.75)
 ``` 
 
 horizontal rule (or slide break):  
 
-***   
+***  
 
-> block quote as this  
+## Header 2  {#ref.h2}
 
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Sed egestas iaculis dapibus. Morbi eros felis, faucibus non aliquam vitae, faucibus id neque. Etiam porttitor elit et neque tincidunt imperdiet. Integer felis purus, luctus ut elit quis, placerat porttitor orci. Proin eget felis fermentum, interdum justo tempor, interdum turpis. Aliquam quis turpis vulputate, porttitor sem at, gravida diam. Proin blandit felis tempor nibh bibendum, eu fringilla felis interdum. Aliquam ac neque a sem maximus iaculis quis sit amet magna.  
 
+> Block Quote, lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam at eros ac tortor euismod euismod ac eget eros. Nam nec est ornare, rhoncus est vitae, pretium mauris. Praesent at neque dapibus, consequat erat nec, sodales mi. Praesent interdum urna at metus egestas, et laoreet sapien maximus. Integer faucibus velit id metus egestas vehicula. Nam nulla nunc, congue quis magna in, sagittis semper turpis. Nullam nec lorem metus. Etiam venenatis metus et dolor feugiat convallis. Aliquam erat volutpat. Suspendisse potenti. Nullam iaculis, lacus nec auctor congue, dui dolor pellentesque dolor, a mattis lectus orci et ex. Donec et neque ornare, tempor magna eget, viverra lorem. Cras placerat quam sit amet purus consequat eleifend. [@kosik_dialectica_1965 p. 33 ]  
+
+Sed a eros vulputate, ornare orci id, bibendum tellus. Sed maximus, arcu facilisis mollis fringilla, leo augue gravida arcu, fermentum aliquet metus nisi at elit. Donec nec posuere felis. Etiam sed elit mauris. Maecenas quis nisl vel risus placerat ornare. Pellentesque ac pellentesque tellus. Morbi venenatis arcu diam, et porta nulla ultrices at. Aenean cursus id mi suscipit viverra. Pellentesque leo dui, faucibus at mollis mollis, tincidunt ut leo. Suspendisse pulvinar libero eget ultrices semper.  
 
 * unordered list
 * item 2 with "*".  
@@ -104,12 +125,14 @@ horizontal rule (or slide break):
     + sub-item 2 with "+".  
         - sub-sub-item 1 with "-".  
 ***
-```{r fig.cap="The mangua"}
+```{r fig.cap="The mangua", purl = TRUE}
 library(viridis)
 image(volcano, col=viridis(200, option="A"))
 ```  
 
-1. ordered list
+An ordered list:
+
+1. item 1
 2. item 2
     + sub-item 1
     + sub-item 2  
@@ -125,15 +148,37 @@ Table Header | Second Header
 Table Cell | Cell 2
 Cell 3 | Cell 4  
 
+
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Y que se describen en el Cuadro \@ref(tab:vrm).  
+
+```{r vrm, fig.cap='(ref:vrm)', eval = T, echo = T, purl = TRUE}
+knitr::kable(
+data.frame(cbind(
+"id"=c(1,2,3,7,8,9,10,11,15,16,17,21),
+"catalogo"=c("r_def","loc","mun","v_sel","n_hog","h_mud","n_ent","n_ren","eda","nac_dia","nac_mes","cs_p13_2"),
+"nombre_campo"=c("Resultado definitivo de la entrevista","Número de la localidad","Número de municipio según entidad","Vivienda seleccionada","Número de hogar","Hogar mudado","Número de entrevista o visita","Número de renglón","Pregunta 9 Edad","Pregunta 10 Día de nacimiento","Pregunta 10 Mes de nacimiento","Pregunta 13 ¿Hasta qué año aprobó… en la escuela?")
+)),
+booktabs = TRUE,
+  caption = 'Variables a remover'
+)
+```  
+
 ***
 
 # Header 1  
 
 Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Sed egestas iaculis dapibus. Morbi eros felis, faucibus non aliquam vitae, faucibus id neque. Etiam porttitor elit et neque tincidunt imperdiet. Integer felis purus, luctus ut elit quis, placerat porttitor orci. Proin eget felis fermentum, interdum justo tempor, interdum turpis. Aliquam quis turpis vulputate, porttitor sem at, gravida diam. Proin blandit felis tempor nibh bibendum, eu fringilla felis interdum. Aliquam ac neque a sem maximus iaculis quis sit amet magna.
 
-## Header 2  
 
-> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam at eros ac tortor euismod euismod ac eget eros. Nam nec est ornare, rhoncus est vitae, pretium mauris. Praesent at neque dapibus, consequat erat nec, sodales mi. Praesent interdum urna at metus egestas, et laoreet sapien maximus. Integer faucibus velit id metus egestas vehicula. Nam nulla nunc, congue quis magna in, sagittis semper turpis. Nullam nec lorem metus. Etiam venenatis metus et dolor feugiat convallis. Aliquam erat volutpat. Suspendisse potenti. Nullam iaculis, lacus nec auctor congue, dui dolor pellentesque dolor, a mattis lectus orci et ex. Donec et neque ornare, tempor magna eget, viverra lorem. Cras placerat quam sit amet purus consequat eleifend. [@kosik_dialectica_1965 p. 33 ] 
+**Lista de etiquetas recuadros de código**   
+
+```{r all_labels, eval=T, echo = F}
+as.data.frame(knitr::all_labels(purl == TRUE))
+```
+
+
+
+
 
 ### Header 3  
 
@@ -151,9 +196,12 @@ Sed Kosik [-@kosik_dialectica_1965] condimentum lacus vitae orci cursus facilisi
 ***   
 
 * Add BibTeX or CSL bibliographies to the YAML header.  
-Más información [aquí](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html)
+
+Más información [aquí](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html).
 
 \newpage  
+
+
 
 # Lista de referencias bibliográficas
 
