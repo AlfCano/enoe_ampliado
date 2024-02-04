@@ -215,8 +215,7 @@ f,          # en el contenido de cada tabla "f".
 
 # Hasta este punto, se han obtenido en la tabla "data" `[1] 392178` registros, ciento cuatro columnas etiquetadas y setenta y tres variables de factor con etiquetas de valor a través de los metadatos proporcionados en linea con el estándar DA. Para obtener el recuento anterior se puede ejecturar:
 
-library("dplyr")
-count(meta.sdem$data)
+nrow(meta.sdem$data)
 
 
  # En la ENOEN 3t 2021 no existe archivo de etiquetas para la variable "l_nac_c" ("Pregunta 11 Lugar de nacimiento 30"). Y en las versiones del 2017 al 2020 la variable "cs_p14_c" destacó que sus etiquetas de valor sólo aparecen en mayúsculas, mientras que en la 2021 y 2022 aparecen en altas y bajas con uso de tilde. 
@@ -237,24 +236,23 @@ count(meta.sdem$data)
 
 ## Filtrar casos de la tabla "sdem"
 
-#Para unir las tres tablas ("sdem" + "coe1" + "coe2") con base en las instrucciones en INEGI [-@inegiConociendoBaseDatos2010], se procede al filtrado de la tabla de la tabla "sdem". Primeramente se deben eliminar los registros de la variable "r_def" ("Resultado definitivo de la entrevista") diferentes de 00, las cuales corresponden a entrevistas incompletas o no logradas. También los registros con condición de residencia ausente (c_res="Ausente definitivo"). Así mismo, se debe suprimir a los menores de 12 años `(eda > 11)`, ya que las tablas "coe1" y "coe2" sólo incluyen a personas de 12 años y más. Finalmente, se eliminan los registros que tienen registros iguales a 99 en edad `(eda != 99)`, y que corresponden a "Años no especificados de menores de 12"^[Las personas con `eda == 98` se etiquetan como "Años no especificados de 12 años y más" [@inegiEncuestaNacionalOcupacion2020]]. Por lo anterior, se aplicó la siguiente condición de selección: `(r_def == 0) & (c_res != "Ausente definitivo") & (eda > 11) & (eda != 99)")`. El filtro se aplica a través de la función `subset()` y asigna el resultado a la nueva lista "count.df":
+#Para unir las tres tablas ("sdem" + "coe1" + "coe2") con base en las instrucciones en INEGI [-@inegiConociendoBaseDatos2010], se procede al filtrado de la tabla de la tabla "sdem". Primeramente se deben eliminar los registros de la variable "r_def" ("Resultado definitivo de la entrevista") diferentes de 00, las cuales corresponden a entrevistas incompletas o no logradas. También los registros con condición de residencia ausente (c_res="Ausente definitivo"). Así mismo, se debe suprimir a los menores de 12 años `(eda > 11)`, ya que las tablas "coe1" y "coe2" sólo incluyen a personas de 12 años y más. Finalmente, se eliminan los registros que tienen registros iguales a 99 en edad `(eda != 99)`, y que corresponden a "Años no especificados de menores de 12"^[Las personas con `eda == 98` se etiquetan como "Años no especificados de 12 años y más" [@inegiEncuestaNacionalOcupacion2020]]. Por lo anterior, se aplicó la siguiente condición de selección: `(r_def == 0) & (c_res != "Ausente definitivo") & (eda > 11) & (eda != 99)")`. El filtro se aplica a través de la función `filter()` (de `dplyr`) y asigna el resultado a la nueva lista "count.df":
 
 local({
+library("dplyr")
 ## Computar
 .GlobalEnv$count.df <- list()
-.GlobalEnv$count.df$sdem_pea.df <- subset(meta.sdem$data, subset=(r_def == 0) & (c_res != "Ausente definitivo") & (eda >11) & (eda!=99))
-for(i in 1:length(names(count.df$sdem_pea.df))) {
-	 attr(.GlobalEnv$count.df$sdem_pea.df[[names(count.df$sdem_pea.df)[i]]],".rk.meta") <- attr(meta.sdem$data[[names(count.df$sdem_pea.df)[i]]],".rk.meta")}})
+.GlobalEnv$count.df$sdem <- filter(meta.sdem$data, (r_def == 0) & (c_res != "Ausente definitivo") & (eda >11) & (eda!=99))
+nrow(count.df$sdem)
+})
 	 
-#Se obrienen, `[1] 307117` registros en la tabla "sdem_pea.df". Este número es relevante porque deberá coincidir con lo obtenido de las tablas "coe1" y "coe2". 
-# Contar los registros que se tienen en la tabla "sdem_pea.df".
+#Se obrienen, `[1] 307117` registros en la tabla "sdem". Este número deberá coincidir con el obtenido de las tablas "coe1" y "coe2". 
+# Contar los registros que se tienen en la tabla "sdem".
 
-library("dplyr")
-count(count.df$sdem_pea.df)
 
-# Ahora que cuenta con el marco de datos "sdem_pea.df" en la lista recién creada "count.df " y se ha comprobado el número de registros puede considerar remover la base de datos "data" de a lista "meta.sdem" con:
+# Ahora que cuenta con el marco de datos "sdem" en la lista recién creada "count.df " y se ha comprobado el número de registros puede considerar remover la base de datos "data" de a lista "meta.sdem" con:
 
-meta.sdem <- within(meta.sdem, rm(data))
+# meta.sdem <- within(meta.sdem, rm(data))
 
 # ### COE1 ###
 
@@ -477,13 +475,12 @@ f,
 nomatch = NA)
 .GlobalEnv$meta.coe1$data[[i]] <- v
 }
-.GlobalEnv$count.df$coe1.df  <- .GlobalEnv$meta.coe1$data
+.GlobalEnv$count.df$coe1  <- .GlobalEnv$meta.coe1$data
 })
 
 lapply(count.df, nrow)
 
-# library(dplyr)
-# dplyr::count(count.df$coe1.df)
+# Considerar remover:
 # meta.coe1 <- within(meta.coe1, rm(data))
 
 # ### COE2 ###
@@ -574,7 +571,7 @@ df <- df %>%
 })
 
 
-#meta.coe2$noms <- meta.coe2$noms[-(c(3:9, 37)),] #Sería mejor usar nombres? p8_9 (col 42) no tiene categorías en los csv y no está en el 2018
+# Se usan los nombres. La variable "p8_9" (col 42) no tiene categorías en los csv y no está en el 2018.
 #3  v_sel	Vivienda Seleccionada
 #4  n_hog	Número de hogar
 #5  h_mud	Hogar mudado
@@ -606,9 +603,9 @@ data <- read.csv (file=file,  na.strings = "NA", nrows = -1, skip = 0, check.nam
 local({
 ## Computar
 list_names <- meta.coe2$noms[["catalogo"]]
-for (e in list_names)  {
+for (i in list_names)  {
 f <- meta.coe2$data
-f[[e]]<- as.factor(f[[e]])
+f[[i]]<- as.factor(f[[i]])
 ## Asignar el resultado  
 .GlobalEnv$meta.coe2$data <-f
 }
@@ -659,14 +656,13 @@ nomatch = NA)
 ###Copiar de coe1 a coe2 r_def
 #  Observar que en la tabla "coe2" no existe variable "r_def", si se utiliza como índice para la unión con las otras tablas.
 
-library(dplyr)
-count(meta.coe2[["data"]])
-count.df$coe2.df <- meta.coe2[["data"]]
+nrow(meta.coe2[["data"]])
+count.df$coe2 <- meta.coe2[["data"]]
 
-count.df$sdem_pea.df[["fac_tri"]] <- count.df$sdem_pea.df[["fac"]]
+count.df$sdem[["fac_tri"]] <- count.df$sdem[["fac"]]
 
 ### Revisar `[1] 307117` para las tres tablas
-library(dplyr)
+
 lapply(count.df, nrow)
 
 #meta.coe1 <- within(meta.coe1, rm(data))
@@ -680,9 +676,7 @@ local({
 library("dplyr")
 library("lookup")
 ## Computar
-sdem <- count.df$sdem_pea.df
-coe1 <- count.df$coe1.df
-coe2 <- count.df$coe2.df
+attach(count.df) #Añadir la lista al directorio de búsqueda de `R`.
 df <-right_join(sdem, coe1, by=NULL, copy=FALSE) %>% 
       right_join(coe2, by=NULL, copy=FALSE)
 etq <- data.frame(cbind("nemonico"=c("cd_a","ent","ur"), "descrip"=c("Ciudad autorrepresentada","Entidad","Urbano/Rural")))
@@ -690,28 +684,30 @@ for (i in etq$nemonico) {
 rk.set.label(df[[i]], vlookup(i, etq, "nemonico", "descrip",nomatch = NA))}
 ## Asignar el resultado
 .GlobalEnv[["sdem_coes.df"]] <- df
-})
-nrow(sdem_coes.df) # Recuento
-
-# Filtrar menores de 15 años
-local({
-## Computar
-.GlobalEnv$sdem_coes_14.df <- subset(sdem_coes.df, subset=eda>14) #filtrar menores de 15 años
-for(i in 1:length(names(sdem_coes_14.df))){
-	 attr(.GlobalEnv$sdem_coes_14.df[[names(sdem_coes_14.df)[i]]],".rk.meta") = attr(sdem_coes.df[[names(sdem_coes_14.df)[i]]],".rk.meta")
-}
+detach(count.df)
+nrow(sdem_coes.df) # Recuento [1] 307117
 })
 
 # Joining with `by = join_by(r_def, cd_a, ent, con, upm, d_sem, n_pro_viv, v_sel,
 # n_hog, h_mud, n_ent, per, n_ren, eda, ur, fac)`
 # Joining with `by = join_by(cd_a, ent, con, upm, d_sem, n_pro_viv, v_sel, n_hog,
 # h_mud, n_ent, per, n_ren, eda, ur, fac, n_inf)`
+# Filtrar menores de 15 años
+
+local({
+##Preparar
+library("dplyr")
+## Computar
+.GlobalEnv$sdem_coes_14.df <- filter(sdem_coes.df, eda>14) #filtrar menores de 15 años
+nrow(sdem_coes_14.df)
+})
 
 ##Revisar `[1] 286294`
-nrow(sdem_coes_14.df)
 
-#Remover
-#rm(sdem_coes.df)
+# Remover
+# rm(sdem_coes.df)
+
+#Ahora se puede guardar el archivo si se obtiene `[1] 286294` del conteo en el marco de datos "sdem_coes_14.df", tras filtrar a los menores de catorce años al directorio en el que se descomprimieron los datos con:
 
 ## Guardar
 local({

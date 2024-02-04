@@ -176,10 +176,6 @@ Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neq
 as.data.frame(knitr::all_labels(purl == TRUE))
 ```
 
-
-
-
-
 ### Header 3  
 
 Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut libero neque. Nunc in pulvinar erat. Curabitur gravida vitae mi id bibendum. Sed egestas iaculis dapibus. Morbi eros felis, faucibus non aliquam vitae, faucibus id neque. Etiam porttitor elit et neque tincidunt imperdiet. Integer felis purus, luctus ut elit quis, placerat porttitor orci. Proin eget felis fermentum, interdum justo tempor, interdum turpis. Aliquam quis turpis vulputate, porttitor sem at, gravida diam. Proin blandit felis tempor nibh bibendum, eu fringilla felis interdum. Aliquam ac neque a sem maximus iaculis quis sit amet magna.
