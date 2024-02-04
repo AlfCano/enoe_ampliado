@@ -211,11 +211,11 @@ f,          # en el contenido de cada tabla "f".
 ## Asignar el resultado
 .GlobalEnv$meta.sdem$data[[i]] <- v
 }
+nrow(meta.sdem$data) # Para obtener el recuento: "[1] 392178"
 })   
 
 # Hasta este punto, se han obtenido en la tabla "data" `[1] 392178` registros, ciento cuatro columnas etiquetadas y setenta y tres variables de factor con etiquetas de valor a través de los metadatos proporcionados en linea con el estándar DA. Para obtener el recuento anterior se puede ejecturar:
 
-nrow(meta.sdem$data)
 
 
  # En la ENOEN 3t 2021 no existe archivo de etiquetas para la variable "l_nac_c" ("Pregunta 11 Lugar de nacimiento 30"). Y en las versiones del 2017 al 2020 la variable "cs_p14_c" destacó que sus etiquetas de valor sólo aparecen en mayúsculas, mientras que en la 2021 y 2022 aparecen en altas y bajas con uso de tilde. 
@@ -268,7 +268,7 @@ setwd(file.path(fp$coe1,"catalogos", fsep = .Platform$file.sep))
 local({
 ## Preparar
 library("rio")
-##Computar
+## Computar
 cat_files <- list.files(pattern = "\\.csv$")
 .GlobalEnv$meta.coe1 <- list()
 .GlobalEnv$meta.coe1$cat <- list()
