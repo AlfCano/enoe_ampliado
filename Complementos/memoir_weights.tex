@@ -1,0 +1,350 @@
+\documentclass[fleqn,10pt]{latex/stylish_article} % Document font size and equations flushed left
+
+\setcounter{tocdepth}{3}
+
+% Pandoc environments
+\usepackage{framed}
+\usepackage{fancyvrb}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}, fontsize=\scriptsize} % R Code
+
+% Colored code
+\usepackage{color}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\ImportTok}[1]{{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{{#1}}}}
+\newcommand{\BuiltInTok}[1]{{#1}}
+\newcommand{\ExtensionTok}[1]{{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\NormalTok}[1]{{#1}}
+
+% cslreferences environment required by pandoc > 2.7
+
+% Polyglossia
+\usepackage{polyglossia}
+\setmainlanguage{en-US}
+\setotherlanguage{fr-FR}
+\setotherlanguage{it}
+
+% localized quotes
+\usepackage[strict,autostyle]{csquotes}
+
+% Figures
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight0.8\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+% Additional packages
+\usepackage{natbib}             % Advanced Bibliography (citep...).
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{breqn}              % Line breaks in equations
+\usepackage{url}                % Line breaks in url's
+\usepackage{enumitem}           % Line spacing in lists
+  \setlist[itemize]{noitemsep,nolistsep}
+  \setlist[enumerate]{noitemsep,nolistsep}
+
+% Tables
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+% These lines are needed to make table captions work with longtable:
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
+% longtable 2 columns
+% https://tex.stackexchange.com/questions/161431/how-to-solve-longtable-is-not-in-1-column-mode-error
+\makeatletter
+\let\oldlt\longtable
+\let\endoldlt\endlongtable
+\def\longtable{\@ifnextchar[\longtable@i \longtable@ii}
+\def\longtable@i[#1]{\begin{figure}[t]
+\onecolumn
+\begin{minipage}{0.5\textwidth}\scriptsize
+\oldlt[#1]
+}
+\def\longtable@ii{\begin{figure}[t]
+\onecolumn
+\begin{minipage}{0.5\textwidth}\scriptsize
+\oldlt
+}
+\def\endlongtable{\endoldlt
+\end{minipage}
+\twocolumn
+\end{figure}}
+\makeatother
+
+% Full-width tables
+\usepackage{tabu}
+\renewenvironment{table}{\begin{table*}}{\end{table*}\ignorespacesafterend}
+
+% Prevent overfull lines
+\setlength{\emergencystretch}{3em}
+
+% User-adder preamble
+\hyphenation{bio-di-ver-si-ty sap-lings}
+
+% hyperref comes last
+\usepackage{hyperref}           % Hypertext links, PDF bookmarks
+  \hypersetup{%
+    urlcolor=blue,%
+    linkcolor=black,citecolor=black,colorlinks=true%
+  }
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\JournalInfo{Publication reference} % Journal information
+\Archive{DOI: xxx/xx} % Additional notes (e.g. copyright, DOI, review/research article)
+
+\PaperTitle{Weights in statistics} % Article title
+
+\Authors{
+Thomas Lumley\textsuperscript{1,2*}
+} % Authors
+\affiliation{
+\textsuperscript{1}Faculty of Science, Statistics / University of Auckland\\ \hspace{1em} SCIENCE CENTRE - MATHPHYSIC - Bldg 303, 38 PRINCES ST, AUCKLAND, 1010, New Zealand.\\\textsuperscript{2}Department of Biostatistics / University of Washington\\ \hspace{1em} 1410 NE Campus Parkway Seattle, WA , 98195, USA.
+}
+\affiliation{*\textbf{Corresponding author}: \href{mailto:t.lumley@auckland.ac.nz}{\nolinkurl{t.lumley@auckland.ac.nz}}, \url{https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/}} % Corresponding author
+
+\Keywords{keyword1, keyword2, etc} % Keywords
+\newcommand{\keywordname}{Keywords} % Defines the keywords heading name
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\Abstract{
+There are roughly three and half distinct uses of the term weights in statistical methodology, and it's a problem for software documentation and software development. Here, I want to distinguish the different uses and clarify when the differences are a problem. I also want to talk about the settings where we know how to use these sorts of weights, and the ones where we don't. In the interests of doing one thing at a time, I'm going to assume the weights are the right weights and you do actually want to use them; we can have the other discussion some other time\citep{gelmanRejoinderStrugglesSurvey2007, gelmanStrugglesSurveyWeighting2007}.
+}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\selectlanguage{en-US}
+
+\flushbottom % Makes all text pages the same height
+
+\maketitle % Print the title and abstract box
+
+\tableofcontents % Print the contents section
+
+\thispagestyle{empty} % Removes page numbering from the first page
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE CONTENTS
+%----------------------------------------------------------------------------------------
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Weights are a genuine cause of concern; people really do get this wrong, and also they spend time emailing me about it. The only software environment that currently does a competent job of systematically documenting these distinctions is Stata, and even there I don't like all of their terminology.
+
+The three main types of weights are
+
+\begin{itemize}
+\tightlist
+\item
+  the ones that show up in the classical theory of weighted least squares. These describe the precision (1/variance) of observations. An observation with a weight of 10 was classically an average of 10 replicate observations, so it has 10 times the precision of an observation with a weight of 1. The idea was extended to handle other reasons for variance/precision to differ between observations, but the basic rule remains that ratios of weights describe ratios of precision. I call these precision weights; Stata calls them analytic weights.\\
+\item
+  the ones that show up in categorical data analysis. These describe cell sizes in a data set, so a weight of 10 means that there are 10 identical observations in the dataset, which have been compressed to a covariate pattern plus a count. For example, data(esoph) in R has three covariates and a binary outcome on about 1200 people summarised as 88 covariate patterns with a count of 0 and 1 outcomes for each pattern. Stata calls these frequency weights, and so do I.\\
+\item
+  the ones that show up in classical survey sampling theory. These describe how the sample can be scaled up to the population. Classically, they were the reciprocals of sampling probabilities, so an observation with a weight of 10 was sampled with probability 1/10, and represents 10 people in the population. In real life, these are typically more complicated than just sampling probabilities, but they play the same role of trying to rescale the sample distribution to match the population distribution. I call these sampling weights, Stata calls them probability weights, other people call them design weights or grossing-up weights (I quite like this last one, too).
+\end{itemize}
+
+\hypertarget{means}{%
+\section{Means}\label{means}}
+
+Now, suppose you want to estimate the mean \(\mu_Y\) of a variable \(Y\) from \(n\) observations.
+
+\begin{itemize}
+\tightlist
+\item
+  With precision weights, the Gauss-Markov theorem says you should take
+  \[
+  \hat \mu_Y =\sum_{i=1}^n w_i^*Y_i= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+  \]
+  where \(w_i^*\) are the weights rescaled to have unit sum.
+\item
+  With frequency weights you need to uncompress the data and take the sample mean. Write \(N=\sum_i w_i\)
+  for the implied full data size, and we have
+  \[
+   \hat \mu_Y  = \frac{\sum_{i=1}^n w_iY_i}{N}= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+   \]
+\item
+  With sampling weights you need to gross up to the population, estimate the population total, and then divide by the estimated population size. The estimated population size is the estimated population total of a variable that's identically 1, so
+  \[ 
+  \hat N = \sum_{i=1}^N w_i
+  \]
+  and
+  \[
+  \hat \mu_Y  = \frac{\sum_{i=1}^n w_iY_i}{\hat N}= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+  \]
+  The resulting formula is the same for all three; but it is constructed differently each time, out of components that mean different things.
+\end{itemize}
+
+What's different is \textbf{variance estimation}.
+
+\begin{itemize}
+\tightlist
+\item
+  With precision weights, we take advantage of the fact that precisions add. We have \(\mathrm{var}^{-1}[Y_i]= w_i/\sigma^2\) for some \(\sigma^2\), and
+  \[
+  \mathrm{var}^{-1}[\hat\mu] = \frac{\sum_i w_i}{\sigma^2}
+  \]
+  To get an estimator, we use
+  \[
+  \hat\sigma^2 =\frac{\sum_{i=1}^n w_i(Y_i-\hat\mu_Y)^2}{n-1}
+  \]
+  giving
+  \[
+  \widehat{\mathrm{var}}[\hat\mu] = \frac{\hat\sigma^2}{\sum_i w_i}= \frac{\sum_{i=1}^n w_i(Y_i-\hat\mu_Y)^2}{\left(\sum_{i=1}^n w_i\right)(n-1)}
+  \]
+  This is invariant under rescaling of the weights; only ratios of precision weights matter.\\
+\item
+  With frequency weights, we just think of the uncompressed original sample
+  \[
+  \widehat{\mathrm{var}}[\hat\mu_Y]= \frac{\sum_i w_i (Y_i-\hat\mu_Y)^2}{N-1}= \frac{\sum_i w_i (Y_i-\hat\mu_Y)^2}{(\sum_i w_i)-1}
+  \]
+  This is not invariant under rescaling; having ten copies of each observation is different from having one copy of each observation.
+\item
+  With sampling weights, the randomness is in the sampling, not in the
+  \(Y\)s. Write \(R_i\) for the indicator that person \(i\) is sampled. The estimated mean is really
+  \[
+  \hat\mu_Y = \frac{\sum_{i=1}^NR_iw_iY_i}{\sum_{i=1}^N w_iR_i}
+  \]
+  and that's a ratio of two random quantities, so it gets messy. In the special case where the denominator
+  \(\hat N=\sum_i w_iR_i\)
+  is non-random and equal to \(N\), and the \(R_i\)
+  are independent, the variance simplifies to
+  \[
+   \mathrm{var}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N \mathrm{var}[R_i]w_i^2Y_i^2
+   \]
+  and if
+  \(w_i=1/\pi_i\)
+  , the reciprocal of the sampling probability we have
+  \(\mathrm{var}[R_i]=\pi_i(1-\pi_i)=w_i^{-1}(1-w_i^{-1})\)
+  so
+  \[
+   \mathrm{var}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N (w_i-1){Y_i^2}
+   \]
+  estimated by
+  \[
+  \widehat{\mathrm{var}}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N R_iw_i(w_i-1){Y_i^2}
+  \]
+  In this special case, the variance is invariant under rescaling the weights (because
+  \(N=\sum_i w_i\)
+  ), but the formula is different from the precision-weights one because it involves
+  \(w_i^2\)
+  . The mean is more precisely estimated when the weights are all similar and less precisely estimated when the weights vary a lot.
+\end{itemize}
+
+\hypertarget{everything-else-nearly}{%
+\section{Everything else (nearly)}\label{everything-else-nearly}}
+
+Most univariate frequentist analyses -- quantiles, tables, linear, generalised linear, or non-linear models, survival models, etc -- can handle frequency weights and sampling weights. Analyses where the response variable has a free dispersion parameter can also handle precision weights.
+
+If your estimator maximises or minimises
+\(\sum_i m_i(\theta)\)
+, or solves
+\(\sum_i z_i(\theta)=0\)
+, where each
+\(m_i\)
+or
+\(z_i\)
+depends on only one observation's outcome
+\(Y_i\)
+, it's easy to put in frequency weights or sampling weights. You just maximise or minimise
+\(\sum_i w_im_i(\theta)\)
+, or solve
+\(\sum_i w_iz_i(\theta)=0\)
+. For slightly more complicated functions like the Cox partial likelihood, you need a bit more work, but it's still possible. Precision weights don't always make sense, but if there's a free scale parameter on the outcome variable they can be estimated the same way.
+
+Standard error estimation is different for the three sets of weights. It's different in the same ways as for the mean, so implementors could handle any of the types of weights, but it would take extra work each time. This is where it's most important to document which type(s) of weight your code is expecting. If a user supplies the wrong sort of weights, they will get the wrong standard errors.
+
+\hypertarget{hints-for-guessing-the-type-of-weights}{%
+\section{Hints for guessing the type of weights}\label{hints-for-guessing-the-type-of-weights}}
+
+As I've said, the type of weight should be documented. If it isn't, here are some hints
+
+\begin{itemize}
+\tightlist
+\item
+  If sampling weights are supported, the documentation will usually say so
+\item
+  Methods that assume the Normal distribution for the outcome variable will typically be using precision weights
+\item
+  Generalised linear models will often take precision weights (with
+  \(Y\)
+  given as the success proportion for binomial data). There will often also be an option for frequency weights (binomial counts) in binomial data.
+\item
+  SPSS supports frequency weights for basically everything.
+\item
+  the standard error estimates will change under rescaling of the weights if you have frequency weights, but not if you have precision weights.
+\end{itemize}
+
+\hypertarget{importance-weights}{%
+\section{Importance weights}\label{importance-weights}}
+
+Because sampling weights and frequency weights (and precision weights if they make sense) plug in to the analysis in the same way and give the same point estimators in common models, you might sometimes want a concept that means just that and doesn't commit you on standard error estimation. Stata uses the term importance weights, which is not bad. I'd prefer analytic weights, but Stata was already using that as a term for precision weights.
+
+\hypertarget{everything-else-else}{%
+\section{Everything else else}\label{everything-else-else}}
+
+The big exception to the principle that point estimates are the same for all types of weights is mixed models. There are two issues
+
+mixed models are about partitioning variance, and precision weights encode assumptions about variance, so precision weights matter for estimating residual variance vs variance components.
+the loglikelihood is not just a sum of terms involving one observation, so there's nowhere to stick sampling weights
+There are also major complications for Bayesian inference with sampling weights, and we'll just not go there for now.
+
+%----------------------------------------------------------------------------------------
+%	REFERENCE LIST
+%----------------------------------------------------------------------------------------
+
+\bibliographystyle{chicago}
+\makeatletter
+% The filename has .bib extension that must be eliminated
+\filename@parse{references.bib}
+% parse stores the file name in base. Extension starts at the first dot, so don't use dots in file names.
+\bibliography{\filename@base}
+\makeatother
+
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

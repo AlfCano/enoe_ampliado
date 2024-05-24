@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en-US" xml:lang="en-US">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Weights in statistics</title>
+  <meta name="description" content="Weights in statistics" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Weights in statistics" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="GitHubID/Repository" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Weights in statistics" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+<link rel="next" href="means.html"/>
+<style type="text/css">
+p.abstract{
+  text-align: center;
+  font-weight: bold;
+}
+div.abstract{
+  margin: auto;
+  width: 90%;
+}
+</style>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="means.html"><a href="means.html"><i class="fa fa-check"></i><b>2</b> Means</a></li>
+<li class="chapter" data-level="3" data-path="everything-else-nearly.html"><a href="everything-else-nearly.html"><i class="fa fa-check"></i><b>3</b> Everything else (nearly)</a></li>
+<li class="chapter" data-level="4" data-path="hints-for-guessing-the-type-of-weights.html"><a href="hints-for-guessing-the-type-of-weights.html"><i class="fa fa-check"></i><b>4</b> Hints for guessing the type of weights</a></li>
+<li class="chapter" data-level="5" data-path="importance-weights.html"><a href="importance-weights.html"><i class="fa fa-check"></i><b>5</b> Importance weights</a></li>
+<li class="chapter" data-level="6" data-path="everything-else-else.html"><a href="everything-else-else.html"><i class="fa fa-check"></i><b>6</b> Everything else else</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Weights in statistics</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Weights in statistics</h1>
+<p class="author multi-author"><em>Thomas Lumley</em></p>
+<p class="date"><em>2020/08/04</em></p>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+<p>There are roughly three and half distinct uses of the term weights in statistical methodology, and it’s a problem for software documentation and software development. Here, I want to distinguish the different uses and clarify when the differences are a problem. I also want to talk about the settings where we know how to use these sorts of weights, and the ones where we don’t. In the interests of doing one thing at a time, I’m going to assume the weights are the right weights and you do actually want to use them; we can have the other discussion some other time<span class="citation">(Gelman 2007a, 2007b)</span>.</p>
+</div>
+</div>
+<div id="introduction" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">1</span> Introduction<a href="introduction.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Weights are a genuine cause of concern; people really do get this wrong, and also they spend time emailing me about it. The only software environment that currently does a competent job of systematically documenting these distinctions is Stata, and even there I don’t like all of their terminology.</p>
+<p>The three main types of weights are</p>
+<ul>
+<li>the ones that show up in the classical theory of weighted least squares. These describe the precision (1/variance) of observations. An observation with a weight of 10 was classically an average of 10 replicate observations, so it has 10 times the precision of an observation with a weight of 1. The idea was extended to handle other reasons for variance/precision to differ between observations, but the basic rule remains that ratios of weights describe ratios of precision. I call these precision weights; Stata calls them analytic weights.<br />
+</li>
+<li>the ones that show up in categorical data analysis. These describe cell sizes in a data set, so a weight of 10 means that there are 10 identical observations in the dataset, which have been compressed to a covariate pattern plus a count. For example, data(esoph) in R has three covariates and a binary outcome on about 1200 people summarised as 88 covariate patterns with a count of 0 and 1 outcomes for each pattern. Stata calls these frequency weights, and so do I.<br />
+</li>
+<li>the ones that show up in classical survey sampling theory. These describe how the sample can be scaled up to the population. Classically, they were the reciprocals of sampling probabilities, so an observation with a weight of 10 was sampled with probability 1/10, and represents 10 people in the population. In real life, these are typically more complicated than just sampling probabilities, but they play the same role of trying to rescale the sample distribution to match the population distribution. I call these sampling weights, Stata calls them probability weights, other people call them design weights or grossing-up weights (I quite like this last one, too).</li>
+</ul>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="means.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

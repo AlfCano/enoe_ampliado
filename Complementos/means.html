@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-US" xml:lang="en-US">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 Means | Weights in statistics</title>
+  <meta name="description" content="2 Means | Weights in statistics" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 Means | Weights in statistics" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="GitHubID/Repository" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 Means | Weights in statistics" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="introduction.html"/>
+<link rel="next" href="everything-else-nearly.html"/>
+<style type="text/css">
+p.abstract{
+  text-align: center;
+  font-weight: bold;
+}
+div.abstract{
+  margin: auto;
+  width: 90%;
+}
+</style>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="means.html"><a href="means.html"><i class="fa fa-check"></i><b>2</b> Means</a></li>
+<li class="chapter" data-level="3" data-path="everything-else-nearly.html"><a href="everything-else-nearly.html"><i class="fa fa-check"></i><b>3</b> Everything else (nearly)</a></li>
+<li class="chapter" data-level="4" data-path="hints-for-guessing-the-type-of-weights.html"><a href="hints-for-guessing-the-type-of-weights.html"><i class="fa fa-check"></i><b>4</b> Hints for guessing the type of weights</a></li>
+<li class="chapter" data-level="5" data-path="importance-weights.html"><a href="importance-weights.html"><i class="fa fa-check"></i><b>5</b> Importance weights</a></li>
+<li class="chapter" data-level="6" data-path="everything-else-else.html"><a href="everything-else-else.html"><i class="fa fa-check"></i><b>6</b> Everything else else</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Weights in statistics</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="means" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">2</span> Means<a href="means.html#means" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Now, suppose you want to estimate the mean <span class="math inline">\(\mu_Y\)</span> of a variable <span class="math inline">\(Y\)</span> from <span class="math inline">\(n\)</span> observations.</p>
+<ul>
+<li>With precision weights, the Gauss-Markov theorem says you should take
+<span class="math display">\[
+\hat \mu_Y =\sum_{i=1}^n w_i^*Y_i= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+\]</span>
+where <span class="math inline">\(w_i^*\)</span> are the weights rescaled to have unit sum.</li>
+<li>With frequency weights you need to uncompress the data and take the sample mean. Write <span class="math inline">\(N=\sum_i w_i\)</span>
+for the implied full data size, and we have
+<span class="math display">\[
+ \hat \mu_Y  = \frac{\sum_{i=1}^n w_iY_i}{N}= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+ \]</span></li>
+<li>With sampling weights you need to gross up to the population, estimate the population total, and then divide by the estimated population size. The estimated population size is the estimated population total of a variable that’s identically 1, so
+<span class="math display">\[ 
+\hat N = \sum_{i=1}^N w_i
+\]</span>
+and
+<span class="math display">\[
+\hat \mu_Y  = \frac{\sum_{i=1}^n w_iY_i}{\hat N}= \frac{\sum_{i=1}^n w_iY_i}{\sum_{i=1}^n w_i}
+\]</span>
+The resulting formula is the same for all three; but it is constructed differently each time, out of components that mean different things.</li>
+</ul>
+<p>What’s different is <strong>variance estimation</strong>.</p>
+<ul>
+<li>With precision weights, we take advantage of the fact that precisions add. We have <span class="math inline">\(\mathrm{var}^{-1}[Y_i]= w_i/\sigma^2\)</span> for some <span class="math inline">\(\sigma^2\)</span>, and
+<span class="math display">\[
+\mathrm{var}^{-1}[\hat\mu] = \frac{\sum_i w_i}{\sigma^2}
+\]</span>
+To get an estimator, we use
+<span class="math display">\[
+\hat\sigma^2 =\frac{\sum_{i=1}^n w_i(Y_i-\hat\mu_Y)^2}{n-1}
+\]</span>
+giving
+<span class="math display">\[
+\widehat{\mathrm{var}}[\hat\mu] = \frac{\hat\sigma^2}{\sum_i w_i}= \frac{\sum_{i=1}^n w_i(Y_i-\hat\mu_Y)^2}{\left(\sum_{i=1}^n w_i\right)(n-1)}
+\]</span>
+This is invariant under rescaling of the weights; only ratios of precision weights matter.<br />
+</li>
+<li>With frequency weights, we just think of the uncompressed original sample
+<span class="math display">\[
+\widehat{\mathrm{var}}[\hat\mu_Y]= \frac{\sum_i w_i (Y_i-\hat\mu_Y)^2}{N-1}= \frac{\sum_i w_i (Y_i-\hat\mu_Y)^2}{(\sum_i w_i)-1}
+\]</span>
+This is not invariant under rescaling; having ten copies of each observation is different from having one copy of each observation.</li>
+<li>With sampling weights, the randomness is in the sampling, not in the
+<span class="math inline">\(Y\)</span>s. Write <span class="math inline">\(R_i\)</span> for the indicator that person <span class="math inline">\(i\)</span> is sampled. The estimated mean is really
+<span class="math display">\[
+\hat\mu_Y = \frac{\sum_{i=1}^NR_iw_iY_i}{\sum_{i=1}^N w_iR_i}
+\]</span>
+and that’s a ratio of two random quantities, so it gets messy. In the special case where the denominator
+<span class="math inline">\(\hat N=\sum_i w_iR_i\)</span>
+is non-random and equal to <span class="math inline">\(N\)</span>, and the <span class="math inline">\(R_i\)</span>
+are independent, the variance simplifies to
+<span class="math display">\[
+ \mathrm{var}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N \mathrm{var}[R_i]w_i^2Y_i^2
+ \]</span>
+and if
+<span class="math inline">\(w_i=1/\pi_i\)</span>
+, the reciprocal of the sampling probability we have
+<span class="math inline">\(\mathrm{var}[R_i]=\pi_i(1-\pi_i)=w_i^{-1}(1-w_i^{-1})\)</span>
+so
+<span class="math display">\[
+ \mathrm{var}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N (w_i-1){Y_i^2}
+ \]</span>
+estimated by
+<span class="math display">\[
+\widehat{\mathrm{var}}[\hat \mu_Y] = \frac{1}{N^2}\sum_{i=1}^N R_iw_i(w_i-1){Y_i^2}
+\]</span>
+In this special case, the variance is invariant under rescaling the weights (because
+<span class="math inline">\(N=\sum_i w_i\)</span>
+), but the formula is different from the precision-weights one because it involves
+<span class="math inline">\(w_i^2\)</span>
+. The mean is more precisely estimated when the weights are all similar and less precisely estimated when the weights vary a lot.</li>
+</ul>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="introduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="everything-else-nearly.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
