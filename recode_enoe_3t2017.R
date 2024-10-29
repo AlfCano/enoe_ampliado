@@ -1,7 +1,7 @@
 ## Importar ENOE desde datos abiertos 3t2017
 
 ## Instalar paquetes necesarios
-install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "uchardet"))
+install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "readr"))  # Se ha cambia "uchardet" por "readr". El paquete "uchardet" no se encuentra más en CRAN, se ha sustituido por 'readr'.
 
 ##Crear la función iconv.recursive
 # La función "iconv.recursive" fue elaborada por los contribuidores de RKWard, y se encuentra disponible en su menú de importación genérica "Archivo->Importar->Formato de Importación->Importación genérica (basada en rio)"
@@ -123,7 +123,7 @@ library ("dplyr")
 df <- meta.sdem$noms #Copia el data.frame nomms al objeto df dentro del Ambiente Local.
 rem <- list("r_def","loc","mun","v_sel","n_hog","h_mud","n_ent","n_ren","eda","nac_dia","nac_mes","cs_p13_2") # Crea la lista "rem" con los nombres de las variables numéricas que no se convertirán en tipo factor.
 df <- df %>%
-  filter(!catalogo %in% rem) # Elimina ("!") las filas de la variable "catalogo" que contienen elementos en ("%in%") en la lista "rem".
+  filter(!catalogo %in% rem) # Elimina ("!") las filas de la variable "catalogo" que contienen elementos en ("%in%") la lista "rem".
 ## Asignar el resultado
 .GlobalEnv$meta.sdem$noms <- df
 })
@@ -144,7 +144,7 @@ df <- meta.sdem[["dic"]] %>%
 
 ## Importación del conjunto de datos y asignación de metadatos
 
-#Importamos los datos sociodemográficos "sdem"
+#Importamos los datos sociodemográficos "sdem".
 local({
 ## Computar
 setwd(file.path(fp$sdem,"conjunto_de_datos", fsep = .Platform$file.sep))
@@ -215,8 +215,6 @@ nrow(meta.sdem$data) # Para obtener el recuento: "[1] 392178"
 })   
 
 # Hasta este punto, se han obtenido en la tabla "data" `[1] 392178` registros, ciento cuatro columnas etiquetadas y setenta y tres variables de factor con etiquetas de valor a través de los metadatos proporcionados en linea con el estándar DA. Para obtener el recuento anterior se puede ejecturar:
-
-
 
  # En la ENOEN 3t 2021 no existe archivo de etiquetas para la variable "l_nac_c" ("Pregunta 11 Lugar de nacimiento 30"). Y en las versiones del 2017 al 2020 la variable "cs_p14_c" destacó que sus etiquetas de valor sólo aparecen en mayúsculas, mientras que en la 2021 y 2022 aparecen en altas y bajas con uso de tilde. 
  
@@ -506,18 +504,17 @@ data <- iconv.recursive (data, from="latin1")
 }
 })
 
-# En ENOEN, los siguientes archivos están en otra codificación: p6e, p6f, p6g, p6h, p6i. El siguiente loop se ha creado para detectar la codificación de caracteres. No están en ENOE 2017.
-#local({
-#library("uchardet")
-#p6 <- c("p6e.csv", "p6f.csv", "p6g.csv", "p6h.csv", "p6i.csv")
-#for(i in p6) {
-#v <- read.csv(i, encoding=detect_file_enc(i))
-#.GlobalEnv$meta.coe2$cat[[i]] <- v 
-#}
-#})
+# En el diseño ENOE^N 2022, los siguientes conjuntos se han encontrado en otra codificación las variables: p6e, p6f, p6g, p6h, p6i. El siguiente loop se ha creado para detectar la codificación de caracteres. Estas variables no se encuentran en el conjunto de datos correspondienta al 2017.
+# local({
+# library(readr)
+# p6 <- c("p6e.csv", "p6f.csv", "p6g.csv", "p6h.csv", "p6i.csv")
+# for(i in p6) {
+# v <- read_csv(i)
+# .GlobalEnv$meta.coe2$cat_coe2[[i]] <- v
+# }
+# })
 
 # Para limpiar los nombres usamos de la cadena ".csv" de "stringr".
-
 ## Preparar
 library("stringr")
 ##Computar
