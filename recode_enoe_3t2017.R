@@ -1,7 +1,7 @@
 ## Importar ENOE desde datos abiertos 3t2017
 
 ## Instalar paquetes necesarios
-install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "readr"))  # Se ha cambia "uchardet" por "readr". El paquete "uchardet" no se encuentra más en CRAN, se ha sustituido por 'readr'.
+install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "readr"))  # Se ha cambiado "uchardet" por "readr". El paquete "uchardet" no se encuentra más en CRAN, se ha sustituido por 'readr'.
 
 ##Crear la función iconv.recursive
 # La función "iconv.recursive" fue elaborada por los contribuidores de RKWard, y se encuentra disponible en su menú de importación genérica "Archivo->Importar->Formato de Importación->Importación genérica (basada en rio)"
