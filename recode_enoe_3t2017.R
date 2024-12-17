@@ -1,7 +1,7 @@
 ## Importar ENOE desde datos abiertos 3t2017
 
 ## Instalar paquetes necesarios
-install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "readr"))  # Se ha cambiado "uchardet" por "readr". El paquete "uchardet" no se encuentra más en CRAN, se ha sustituido por 'readr'.
+install.packages(c("stringr", "rio", "janitor", "tidyr", "tibble", "dplyr", "lookup", "readr")) # Se ha cambiado "uchardet" por "readr". El paquete "uchardet" no se encuentra más en CRAN desde 2023-10-29.
 
 ##Crear la función iconv.recursive
 # La función "iconv.recursive" fue elaborada por los contribuidores de RKWard, y se encuentra disponible en su menú de importación genérica "Archivo->Importar->Formato de Importación->Importación genérica (basada en rio)"
@@ -22,7 +22,7 @@ iconv.recursive <- function (x, from) { # Asigna la función subsecuente al obje
 
 local({                           # Inicia el ambiente local.
 fp   <- list()                    # Crea la lista para asignar las rutas a los archivos.
-dir  <-  "/dirección/al/directorio/con/2017_trim3_enoe_csv" # Se coloca aquí la dirección al directorio que contiene las carpetas "conjunto de datos_...". 
+dir  <-  "/home/cano/Escritorio/R/ENOE/Importclean/20173t/" # Se coloca aquí la dirección al directorio que contiene las carpetas "conjunto de datos_...".
 cd   <-  "conjunto_de_datos"      # Cadena constante en los nombres de las tablas.
 tip  <- (c("sdem","coe1","coe2")) # Combina cadenas en una columna (vector) con los nombres de las tablas a importar.
 prog <-  "enoe"                   # Programa de información que se importará.
@@ -71,6 +71,7 @@ data <- iconv.recursive (data, from= "latin1") # Convierte todas las cadenas de 
 .GlobalEnv$meta.sdem$cat[[i]] <- data # Asigna el resultado a la lista "cat" en el Ambiente Global dentro de la lista "meta.sdem".
 }
 })
+
 
 # Para limpiar los nombres usamos de la cadena ".csv" de "stringr".
 
@@ -655,6 +656,8 @@ nomatch = NA)
 
 nrow(meta.coe2[["data"]])
 count.df$coe2 <- meta.coe2[["data"]]
+
+#Debido a que en diseños subsecuentes se ecuentra la variable "fac" como "fac_tri", se copia para que se encuentre presente cuando se fucione con esos conjuntos de datos.
 
 count.df$sdem[["fac_tri"]] <- count.df$sdem[["fac"]]
 
