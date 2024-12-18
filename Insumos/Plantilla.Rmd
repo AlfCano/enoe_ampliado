@@ -7,7 +7,7 @@ output:
     fig_caption: yes
     toc: FALSE
   bookdown::word_document2:
-    reference_docx: "plantilla_inegi.docx"
+    reference_docx: "plantilla.docx"
     fig_caption: yes
     toc: TRUE
     includes: _bookdown.yml
