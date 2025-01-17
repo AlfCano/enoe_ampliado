@@ -22,7 +22,7 @@ iconv.recursive <- function (x, from) { # Asigna la función subsecuente al obje
 
 local({                           # Inicia el ambiente local.
 fp   <- list()                    # Crea la lista para asignar las rutas a los archivos.
-dir  <-  "/home/cano/Escritorio/R/ENOE/Importclean/20173t/" # Se coloca aquí la dirección al directorio que contiene las carpetas "conjunto de datos_...".
+dir  <-  "/acceso/a/la/carpeta/2017_trim3_enoe_csv/" # Se coloca aquí la dirección al directorio que contiene las carpetas "conjunto de datos_...".
 cd   <-  "conjunto_de_datos"      # Cadena constante en los nombres de las tablas.
 tip  <- (c("sdem","coe1","coe2")) # Combina cadenas en una columna (vector) con los nombres de las tablas a importar.
 prog <-  "enoe"                   # Programa de información que se importará.
