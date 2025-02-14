@@ -1,4 +1,4 @@
-#Descriptivos utilizados para hacer el seguimiento del sindicalismo 2018 hasta el 2024
+## Descriptivos utilizados para hacer el seguimiento del sindicalismo 2018 hasta el 2024
 
 ## p3i por rama_est1 (tarda 23 min. aprox)
 
@@ -76,21 +76,10 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-local({
-## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "rama_est1Primario"] <- "Primario"
-recoded[input == "rama_est1Secundario"] <- "Secundario"
-recoded[input == "rama_est1Terciario"] <- "Terciario"
-recoded[input == "rama_est1No especificado"] <- "No especificado"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="piv3[[\"respuesta\"]]",
-	"Variable de salida"="piv3[[\"respuesta\"]]",
-	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
 
+## Computar
+
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]] )
 .GlobalEnv$estim$rama_est1_y_p3i  <-piv3
 
 })
@@ -271,19 +260,7 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "rama_est1Primario"] <- "Primario"
-recoded[input == "rama_est1Secundario"] <- "Secundario"
-recoded[input == "rama_est1Terciario"] <- "Terciario"
-recoded[input == "rama_est1No especificado"] <- "No especificado"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="piv3[[\"respuesta\"]]",
-	"Variable de salida"="piv3[[\"respuesta\"]]",
-	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 .GlobalEnv$estim$rama_est1_y_p3i  <-piv3
 })
 
@@ -393,18 +370,8 @@ columnas_a_eliminar <- c("sexHombre","sexMujer","se.sexHombre",	"se.sexMujer","v
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "sexHombre"] <- "Hombre"
-recoded[input == "sexMujer"] <- "Mujer"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="piv3[[\"respuesta\"]]",
-	"Variable de salida"="piv3[[\"respuesta\"]]",
-	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
 
+piv3[["respuesta"]] <- gsub("sex", "", piv3[["respuesta"]] )
 .GlobalEnv$estim$sex_p3i_si  <-piv3
 
 })
@@ -518,18 +485,7 @@ columnas_a_eliminar <- c("sexHombre","sexMujer","se.sexHombre",	"se.sexMujer","v
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "sexHombre"] <- "Hombre"
-recoded[input == "sexMujer"] <- "Mujer"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="piv3[[\"respuesta\"]]",
-	"Variable de salida"="piv3[[\"respuesta\"]]",
-	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
-
+piv3[["respuesta"]] <- gsub("sex", "", piv3[["respuesta"]] )
 .GlobalEnv$estim$sex_p3i_si_est1  <-piv3
 
 })
@@ -861,19 +817,7 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "rama_est1Primario"] <- "Primario"
-recoded[input == "rama_est1Secundario"] <- "Secundario"
-recoded[input == "rama_est1Terciario"] <- "Terciario"
-recoded[input == "rama_est1No especificado"] <- "No especificado"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-#rk.header ("Re-codificar datos categóricos", parameters=list("Variable de #entrada"="piv3[[\"respuesta\"]]",
-#	"Variable de salida"="piv3[[\"respuesta\"]]",
-#	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 .GlobalEnv$estim_tam$rama_est1_ent.z_y  <-piv3
 })
 
@@ -935,19 +879,8 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
 ## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "rama_est1Primario"] <- "Primario"
-recoded[input == "rama_est1Secundario"] <- "Secundario"
-recoded[input == "rama_est1Terciario"] <- "Terciario"
-recoded[input == "rama_est1No especificado"] <- "No especificado"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-#rk.header ("Re-codificar datos categóricos", parameters=list("Variable de #entrada"="piv3[[\"respuesta\"]]",
-#	"Variable de salida"="piv3[[\"respuesta\"]]",
-#	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
 
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 .GlobalEnv$estim_tam$rama_est1_ent.z_y_hm  <-piv3
 
 })
@@ -1007,19 +940,8 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
 ## Computar
-input <- piv3[["respuesta"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
-recoded <- as.character (piv3[["respuesta"]])
-recoded[input == "rama_est1Primario"] <- "Primario"
-recoded[input == "rama_est1Secundario"] <- "Secundario"
-recoded[input == "rama_est1Terciario"] <- "Terciario"
-recoded[input == "rama_est1No especificado"] <- "No especificado"
-piv3[["respuesta"]] <- as.factor (recoded)
-## Imprimir el resultado
-#rk.header ("Re-codificar datos categóricos", parameters=list("Variable de #entrada"="piv3[[\"respuesta\"]]",
-#	"Variable de salida"="piv3[[\"respuesta\"]]",
-#	"Número de diferencias después de re-codificar"=sum (piv3[["respuesta"]] != piv3[["respuesta"]], na.rm=TRUE) + sum (is.na (piv3[["respuesta"]]) != is.na (piv3[["respuesta"]]))))
 
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 .GlobalEnv$estim_tam$rama_est1_ent.z_y_hm  <-piv3
 
 })
