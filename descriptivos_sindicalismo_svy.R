@@ -43,7 +43,8 @@ local({
 ## Computar
 setwd()
 })
-
+## Gráfica 3. Clasificación de la población ocupada según sector de actividades-Totales, 1t 2018 a 2024
+# [1] "Clasificación de la población ocuapda según sector de actividades-Totales"
 # rama_est1 por población sindicalizada (p3i)
 # Dura aproximadamente 3 min con gpu dedicada
 
@@ -107,68 +108,6 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
-### Crear MAPA de la república Mexicana por tres zonas
-
-#Algoritmo de descarga de los datos .zip
-url<-"http://internet.contenidos.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/geografia/marcogeo/889463674658_s.zip"
-if(!file.exists("areas_geoestadisticas_estatales.zip"){
-  download.file(url,"areas_geoestadisticas_estatales.zip",mode="wb")
-}
-if(!file.exists("conjunto_de_datos/areas_geoestadisticas_basicas_rurales.dbf")){
-  unzip("areas_geoestadisticas_estatales.zip")
-}
-
-#Cargar el paquete terra
-library("terra")
-#Cargar sólo los polígonos de los estados
-shape_estados <- vect("conjunto de datos", layer="01_32_ent")
-
-#Cargar librerías para trabajar con los mapas
-library("ggplot2")
-library("tidyterra")
-
-# Crear el gráfico para hacer recodificación y colocar colores discretos
- mex  <- shape_estados %>%
-   autoplot()
-   print(mex)
-
-# Recodiciación de nombres por ZONAS en mex[["data"]][["NOMGEO"]]
-local({
-## Computar
-input <- mex[["data"]][["NOMGEO"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles, se movió ,"Veracruz de Ignacio de la Llave" a sur-este
-recoded <- as.character (mex[["data"]][["NOMGEO"]])
-recoded[input %in% c("Baja California","Baja California Sur","Sonora","Coahuila de Zaragoza","Chihuahua","Nuevo León","Tamaulipas","Sinaloa","Durango","Zacatecas","Aguascalientes","Nayarit")] <- "Norte"
-recoded[input %in% c("Ciudad de México","México","Querétaro","Jalisco","Colima","Michoacán de Ocampo","San Luis Potosí","Guanajuato","Hidalgo")] <- "Centro"
-recoded[input %in% c("Yucatán","Quintana Roo","Tabasco","Campeche","Guerrero","Chiapas","Morelos", "Oaxaca","Puebla","Tlaxcala","Veracruz de Ignacio de la Llave")] <- "Sur-Este"
-.GlobalEnv$mex[["data"]][["ZONA"]] <- as.factor (recoded)
-## Imprimir el resultado
-rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="mex[[\"data\"]][[\"NOM_ENT\"]]",
-	"Variable de salida"="mex[[\"data\"]][[\"ZONA\"]]",
-	"Número de diferencias después de re-codificar"=sum (mex[["data"]][["NOMGEO"]] != mex[["data"]][["ZONA"]], na.rm=TRUE) + sum (is.na (mex[["data"]][["NOMGEO"]]) != is.na (mex[["data"]][["ZONA"]]))))
-})
-
-### Gráfico con todos los elementos
-local({
-values <- c('wheat3','tomato1','green3')
-plot <- mex + aes(fill= ZONA) +
-theme_minimal() + # ¿theme_minimal() o theme_void() ?
-            theme(plot.title = element_text(size=22),
-                  legend.key.size = unit(0.5, "cm"),
-                  legend.position = "inside",
-                  legend.position.inside = c(0.8, 0.7)) +
-                  scale_fill_manual(values=values) +
-                scale_color_manual(values=c("black")) +
-                  guides(color = FALSE) +
-             labs(title = "Agrupación por Zonas de Estudio",
-             #fill = "ZONA", # En este caso es el mismo nombre de la variable
-             caption = "Fuente: Datos Geográficos 2018 (INEGI),\n Zonas de análisis")
-rk.graph.on("PNG",1344, 960, pointsize=10.0, res=125, bg = "transparent")
-try ({
-	print(plot)
-})
-rk.graph.off()
-})
 
 ### Filtrar por PEA
 
@@ -186,6 +125,7 @@ nrow(pea[["variables"]])
 Se crea la lista para albergar estimaciones
 estim <- list()
 
+## Gráfica 1. Proporción de la población sindicalizada sobre la PEA, 1t 2018 a 2024
 ### Proporción de la población sindicalizada sobre la PEA
 
 pea.ps <- data.frame(cbind(
@@ -261,7 +201,7 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
-.GlobalEnv$estim$rama_est1_y_p3i  <-piv3
+.GlobalEnv$estim$rama_est1_y_p3i  <-piv3 #este es en PEA
 })
 
 # Crear el gráfico
@@ -338,6 +278,8 @@ for(i in 1:length(names(p3i_si$variables))){
 
 nrow(p3i_si[["variables"]])
 
+
+## Gráfica 2. Población sindicalizada por sexo, 1t 2018 a 2024
 ## SVYby SEX
 
 local({
@@ -454,6 +396,8 @@ rk.print(tbl)
 .GlobalEnv$tbls$p3i_rama_est1 <- tbl
 })
 
+## Gráfica 4. Clasificación de la población ocupada sindicalizada según sector de actividades-Totales 1t 2018-2024
+
 local({
 library(survey)
 library(dplyr)
@@ -485,6 +429,7 @@ columnas_a_eliminar <- c("sexHombre","sexMujer","se.sexHombre",	"se.sexMujer","v
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
+# Sustituir sex con ""
 piv3[["respuesta"]] <- gsub("sex", "", piv3[["respuesta"]] )
 .GlobalEnv$estim$sex_p3i_si_est1  <-piv3
 
@@ -551,27 +496,16 @@ rk.print(tbl)
 .GlobalEnv$tbls$eda_sex_p3i_si <- tbl
 })
 
+
+## Gráfica 5. Histograma de Distribución de Edades en el primer trimestre de 2018
 # Histograma por edad
 
-    local({
- p3i_si_2018  <-  subset(subset= year%in%"2018")
-    p <- svyhist(~eda, p3i_si_2018,
-    breaks = "Sturges",
-    xlab="Edad",
-    ylab="Frecuencia",
-    main="Distribución de Edades Ponderadas",
-    col="lightblue",
-    probability=FALSE)
-    rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
-        try({
-            print(p)
-    })
-    rk.graph.off()
-    })
-###
+
 local({
-library(ggplot2)
-library(questionr)
+library("dplyr")
+library("survey")
+library("ggplot2")
+library("questionr")
     p <- p3i_si %>%
 subset(subset= year%in%"2018") %>%
     ggsurvey() +
@@ -594,9 +528,14 @@ subset(subset= year%in%"2018") %>%
     rk.graph.off()
     })
 
+##Gráfica 6. Histograma de Distribución de Edades en el primer trimestre de 2021
+
 local({
-library(ggplot2)
-library(questionr)
+local({
+library("dplyr")
+library("survey")
+library("ggplot2")
+library("questionr")
     p <- p3i_si %>%
 subset(subset= year%in%"2021") %>%
     ggsurvey() +
@@ -619,10 +558,12 @@ subset(subset= year%in%"2021") %>%
     rk.graph.off()
     })
 
+## Gráfica 7. Histograma de Distribución de Edades en el primer trimestre de 2024
 
 local({
-library(ggplot2)
-library(questionr)
+library("dplyr")
+library("ggplot2")
+library("questionr")
 p <- p3i_si %>%
 subset(subset= year%in%"2024") %>%
     ggsurvey() +
@@ -645,7 +586,16 @@ subset(subset= year%in%"2024") %>%
     rk.graph.off()
     })
 
+
 ## Crear estadísticos con la media de la edad
+
+##Gráfica 8. Media de la edad de la población mayor de 14 años por sexo
+
+local({
+est <- svyby(~eda, ~year + sex, des.1 , svymean, na.rm=TRUE)
+est$sex <- fct_rev(est$sex)
+.GlobalEnv$estim$eda_svymean_y_sex <- est
+})
 
 local({
 library(survey)
@@ -657,9 +607,9 @@ library(forcats)
 
 # Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
 
+
 # Calcular el total ponderado por año y ent.z
-est <- svyby(~eda, ~year + sex, des.1 , svymean, na.rm=TRUE)
-est$sex <- fct_rev(est$sex)
+est <- estim$eda_svymean_y_sex
 # Crear el gráfico
 # Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
 p <- ggplot(est, aes(x = year, y = eda, color = sex, group = sex)) +
@@ -677,6 +627,15 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
+## Gráfica 9. Media de la edad de la población mayor de 14 años económicamente activa por sexo
+pea <- subset(des.1, clase1 %in% "Población económicamente activa")
+
+local({
+est <- svyby(~eda, ~year + sex, pea , svymean, na.rm=TRUE)
+est$sex <- fct_rev(est$sex)
+.GlobalEnv$estim$pea_eda_svymean_y_sex <- est
+})
+
 local({
 library(survey)
 #library(dplyr)
@@ -685,11 +644,10 @@ library(RColorBrewer)
 library(stringr)
 library(forcats)
 
-# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
+# Con el objeto 'pea_eda_svymean_y_sex' de clase survey.design2 y la variable 'p3i' categórica
 
-# Calcular el total ponderado por año y ent.z
-est3 <- svyby(~eda, ~year + sex, pea , svymean, na.rm=TRUE)
-est3$sex <- fct_rev(est3$sex)
+# Con la tabla de la media ponderada pea_eda_svymean_y_sex
+est <- estim$pea_eda_svymean_y_sex
 # Crear el gráfico
 # Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
 p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
@@ -707,6 +665,22 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
+## Gráfica 10. Media de edad de la población ocpada por sexo
+
+
+library("survey")
+pob_ocup <- subset(pea, clase2 %in% "Población ocupada")
+
+#estim <- list()
+
+local({
+est <- svyby(~eda, ~year + sex, pob_ocup , svymean, na.rm=TRUE)
+library("forcats")
+est$sex <- fct_rev(est$sex)
+.GlobalEnv$estim$eda_svymean_y_sex <- est
+})
+
+
 local({
 library(survey)
 #library(dplyr)
@@ -714,21 +688,15 @@ library(ggplot2)
 library(RColorBrewer)
 library(stringr)
 library(forcats)
-
-# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
-
-# Calcular el total ponderado por año y ent.z
-library("survey")
-est2 <- subset(pea, clase2 %in% "Población ocupada")
-est3 <- svyby(~eda, ~year + sex, est2 , svymean, na.rm=TRUE)
-library("forcats")
-est3$sex <- fct_rev(est3$sex)
+# Calcular el total ponderado por año
+est <- estim$eda_svymean_y_sex
 # Crear el gráfico
-# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
+# Crear el gráfico de línea y color por nivel de variable
+# Crear el gráfico
+# Crear el gráfico de línea con color por nivel de variable
 p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
   geom_line() +
   geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
-  #facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
  # labs(title= rk.get.label(pea[["variables"]][["sex"]]),
  labs(title= "Media de edad de la población ocupada por sexo",
@@ -742,6 +710,9 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     })
   rk.graph.off()
 })
+
+
+## Tabla
 
 library("survey")
 library("dplyr")
@@ -787,6 +758,131 @@ rk.print(tbl)
 .GlobalEnv$tbls$ambito2_sx <- tbl
 })
 
+## Gráfica 11. Media de la edad de la población sindicalizada por sexo
+## Filtrar p3i con "Sí"
+# local({
+# ## Computar
+# .GlobalEnv$p3i_si  <- subset(pea,subset=p3i%in%"Sí")
+# for(i in 1:length(names(p3i_si$variables))){
+# 	 attr(.GlobalEnv$p3i_si$variables[[names(p3i_si$variables)[i]]],".rk.meta") = attr(pea$variables[[names(p3i_si$variables)[i]]],".rk.meta")
+# } })
+
+nrow(p3i_si[["variables"]])
+#estim <- list()
+
+# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
+local({
+library("survey")
+est <- svyby(~eda, ~year + sex, p3i_si , svymean, na.rm=TRUE)
+library("forcats")
+est$sex <- fct_rev(est$sex)
+.GlobalEnv$estim$p3i_sex_svymean_eda_y <- est3
+}
+)
+
+# Crear el gráfico
+local({
+library(survey)
+#library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+library(forcats)
+
+# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
+
+# Calcular el total ponderado por año y ent.z
+est <- estim$p3i_sex_svymean_eda_y
+# Crear el gráfico
+# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
+p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
+  geom_line() +
+  geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
+  #facet_wrap(~ent.z, nrow = 3) +
+ scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
+ # labs(title= rk.get.label(pea[["variables"]][["sex"]]),
+ labs(
+ #title= "Media de la edad de la población sindicalizada por sexo",
+  x = "Año",
+  y = "Media estimada",
+  color = "Nivel de sex",
+  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
+# rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
+#     try({
+         print(p)
+#     })
+#   rk.graph.off()
+})
+
+
+## Gráfica 12. Clasificación de las Zonas de Análisis 1t 2018-2024
+### Crear MAPA de la república Mexicana por tres zonas
+
+#Algoritmo de descarga de los datos .zip
+url<-"http://internet.contenidos.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/geografia/marcogeo/889463674658_s.zip"
+if(!file.exists("areas_geoestadisticas_estatales.zip"){
+  download.file(url,"areas_geoestadisticas_estatales.zip",mode="wb")
+}
+if(!file.exists("conjunto_de_datos/areas_geoestadisticas_basicas_rurales.dbf")){
+  unzip("areas_geoestadisticas_estatales.zip")
+}
+
+#Cargar el paquete terra
+library("terra")
+#Cargar sólo los polígonos de los estados
+shape_estados <- vect("conjunto de datos", layer="01_32_ent")
+
+#Cargar librerías para trabajar con los mapas
+library("ggplot2")
+library("tidyterra")
+
+# Crear el gráfico para hacer recodificación y colocar colores discretos
+ mex  <- shape_estados %>%
+   autoplot()
+   print(mex)
+
+# Recodiciación de nombres por ZONAS en mex[["data"]][["NOMGEO"]]
+local({
+## Computar
+input <- mex[["data"]][["NOMGEO"]]
+# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles, se movió ,"Veracruz de Ignacio de la Llave" a sur-este
+recoded <- as.character (mex[["data"]][["NOMGEO"]])
+recoded[input %in% c("Baja California","Baja California Sur","Sonora","Coahuila de Zaragoza","Chihuahua","Nuevo León","Tamaulipas","Sinaloa","Durango","Zacatecas","Aguascalientes","Nayarit")] <- "Norte"
+recoded[input %in% c("Ciudad de México","México","Querétaro","Jalisco","Colima","Michoacán de Ocampo","San Luis Potosí","Guanajuato","Hidalgo")] <- "Centro"
+recoded[input %in% c("Yucatán","Quintana Roo","Tabasco","Campeche","Guerrero","Chiapas","Morelos", "Oaxaca","Puebla","Tlaxcala","Veracruz de Ignacio de la Llave")] <- "Sur-Este"
+.GlobalEnv$mex[["data"]][["ZONA"]] <- as.factor (recoded)
+## Imprimir el resultado
+rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="mex[[\"data\"]][[\"NOM_ENT\"]]",
+	"Variable de salida"="mex[[\"data\"]][[\"ZONA\"]]",
+	"Número de diferencias después de re-codificar"=sum (mex[["data"]][["NOMGEO"]] != mex[["data"]][["ZONA"]], na.rm=TRUE) + sum (is.na (mex[["data"]][["NOMGEO"]]) != is.na (mex[["data"]][["ZONA"]]))))
+})
+
+### Gráfico con todos los elementos
+local({
+library("ggplot2")
+library("tidyterra")
+values <- c('wheat3','tomato1','green3')
+plot <- mex + aes(fill= ZONA) +
+theme_minimal() + # ¿theme_minimal() o theme_void() ?
+            theme(plot.title = element_text(size=22),
+                  legend.key.size = unit(0.5, "cm"),
+                  legend.position = "inside",
+                  legend.position.inside = c(0.8, 0.7)) +
+                  scale_fill_manual(values=values) +
+                scale_color_manual(values=c("black")) +
+                  guides(color = FALSE) +
+             labs(
+             #title = "Agrupación por Zonas de Estudio",
+             #fill = "ZONA", # En este caso es el mismo nombre de la variable
+             caption = "Fuente: Datos Geográficos 2018 (INEGI),\n Zonas de análisis")
+# rk.graph.on("PNG",1344, 960, pointsize=10.0, res=125, bg = "transparent")
+# try ({
+ 	print(plot)
+# })
+# rk.graph.off()
+})
+
+## Gráfica 13. Clasificación de la población ocupada sindicalizada según sector de actividades-Totales 1t 2018-2024
 ####
 estim_tam <- list()
 
@@ -817,7 +913,9 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
+#Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
+# Guardar el resultado en la lista estim_tam
 .GlobalEnv$estim_tam$rama_est1_ent.z_y  <-piv3
 })
 
@@ -845,6 +943,8 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
 })
 
 
+## Gráfica 14
+##Clasificación de la población ocupada sindicalizada masculina según sector de actividades-Totales 1t 2018-2024
 #### Hombre
 
 
@@ -878,9 +978,9 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
-
+#Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
+# Guardar el resultado en la lista estim_tam
 .GlobalEnv$estim_tam$rama_est1_ent.z_y_hm  <-piv3
 
 })
@@ -907,6 +1007,8 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
+## Gráfica 15
+##Clasificación de la población ocupada sindicalizada femenina según sector de actividades-Totales 1t 2018-2024
 ## Mujer
 
 local({
@@ -939,10 +1041,11 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 
-## Computar
 
+#Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
-.GlobalEnv$estim_tam$rama_est1_ent.z_y_hm  <-piv3
+# Guardar el resultado en la lista estim_tam
+.GlobalEnv$estim_tam$rama_est1_ent.z_y_mj  <-piv3
 
 })
 
@@ -959,7 +1062,8 @@ p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respues
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
+  labs(
+  title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
   x = "Año", y = "Total Ponderado", color = "Nivel de rama_est1",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
