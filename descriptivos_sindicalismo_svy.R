@@ -1,13 +1,17 @@
-## Descriptivos utilizados para hacer el seguimiento del sindicalismo 2018 hasta el 2024
+## Descriptivos utilizados para hacer el seguimiento del sindicalismo 2018 hasta el 2024 en el cuestionario apliado (1t)
 
-## p3i por rama_est1 (tarda 23 min. aprox)
+#Establecer el directorio de trabajo
+local({
+## Computar
+setwd("/dirigir/al/directorio/con/des1.RData")
+})
 
-tbls <- list() ## Sólo correr una vez
-
+## Prepara el entorno
 library("dplyr")
 library("survey")
 library("gtsummary")
 
+# Configura el idioma del paquete "gtsummary" en español.
 theme_gtsummary_language(
   language = "es",
   decimal.mark = NULL,
@@ -16,114 +20,42 @@ theme_gtsummary_language(
   ci.sep = NULL,
   set_theme = TRUE
 )
-
+# Configura el tamaño de las tablas creadas por el paquete "gtsummary" en tamaño compacto y en tamaño 8.
 theme_gtsummary_compact(set_theme = TRUE, font_size = 8)
 
-##
+tbls <- list() ## Crea la lista en blanco "tbls" en la que se alojarán las tablas.
+
+## Tabla 2. Población Económicamente Activa (PEA) estimada para 1t 2018-2024
+# Número de personas en la PEA por sexo
+local({
+library("dplyr") # Carga el paquete "dplyr".
+tbl <- subset(des.1, clase1 %in% "Población económicamente activa") %>% # Crea el objeto "pea", con  "Población económicamente activa" (PEA) en la variable "clase1", .
+tbl_svysummary(
+  by = year,
+  statistic = list(sex ~ "{n} ({p})"),
+  percent = "column",
+  label= sex~rk.get.label(des.1$variables$sex), #Las etiquetas desde el survey design original.
+  include = "sex")
+rk.print(tbl)
+.GlobalEnv$tbls$pea_sex <- tbl
+})
+
+## Tabla 3. Distribución de la población sindicalizada por sexo 1t 2018 a 2024
 local({
 library("dplyr")
-tbl <- des.1 %>%
-tbl_strata(
-strata = "year",
-.tbl_fun =
-~ .x %>%
+tbl <- subset(des.1,
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
 tbl_svysummary(
-  by = rama_est1,
-  statistic = list(p3i ~ "{n} ({p})"),
-  #percent = "row",
-  label= p3i~rk.get.label(des.1$variables$p3i), #Las etiquetas desde el survey design original.
-  include = "p3i")
-)
+  by = year,
+  statistic = list(sex ~ "{n} ({p})"),
+  digits = list(sex ~ c(0, 1)),
+  percent = "column",
+  label= sex~rk.get.label(des.1$variables$sex), #Las etiquetas desde el survey design original.
+  include = "sex")
 rk.print(tbl)
-.GlobalEnv$tbls$p3i_rama_est1 <- tbl
+.GlobalEnv$tbls$sex_p3i_si <- tbl
 })
-
-
-local({
-## Computar
-setwd()
-})
-## Gráfica 3. Clasificación de la población ocupada según sector de actividades-Totales, 1t 2018 a 2024
-# [1] "Clasificación de la población ocuapda según sector de actividades-Totales"
-# rama_est1 por población sindicalizada (p3i)
-# Dura aproximadamente 3 min con gpu dedicada
-
-local({
-library(survey)
-library(dplyr)
-library(splitstackshape)
-
-# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
-
-# Calcular el total ponderado por año y ent.z
-est <- svyby(~rama_est1, ~year + p3i, des.1, svytotal, na.rm=TRUE)
-
-columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
-# Eliminamos las columnas especificadas
-est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
-library(tidyr)
-piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
-library(tidyr)
-piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
-#Use
-piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
-piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "p3i" = "p3i","respuesta" = "variable_2"))
-
-columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado","variable_1")
-
-# Eliminamos las columnas especificadas
-piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
-## Computar
-
-piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]] )
-.GlobalEnv$estim$rama_est1_y_p3i  <-piv3
-
-})
-
-# Crear el gráfico
-local({
-library(survey)
-library(ggplot2)
-library(RColorBrewer)
-library(stringr)
-piv3 <- estim$rama_est1_y_p3i
-# Crear el gráfico de línea con facetas por respuesta y color por nivel de variable
-p <- ggplot(piv3, aes(x = year, y = recuento, color = p3i, group = p3i)) +
-  geom_line() +
-  geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
-  facet_wrap(~respuesta, nrow = 3) +
- scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(des.1[["variables"]][["rama_est1"]]),
-  x = "Año", y = "Total Ponderado", color = "Nivel de respuesta",
-  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
-rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
-    try({
-        print(p)
-    })
-  rk.graph.off()
-})
-
-
-### Filtrar por PEA
-
-nrow(des.1[["variables"]])
-
-local({
-## Computar
-.GlobalEnv$pea <- subset(des.1,subset=clase1%in%"Población económicamente activa")
-for(i in 1:length(names(pea$variables))){
-	 attr(.GlobalEnv$pea$variables[[names(pea$variables)[i]]],".rk.meta") = attr(des.1$variables[[names(pea$variables)[i]]],".rk.meta")
-} })
-
-nrow(pea[["variables"]])
-
-Se crea la lista para albergar estimaciones
-estim <- list()
 
 ## Gráfica 1. Proporción de la población sindicalizada sobre la PEA, 1t 2018 a 2024
 ### Proporción de la población sindicalizada sobre la PEA
@@ -134,150 +66,30 @@ pea.ps <- data.frame(cbind(
 "A.o.1t"=c(2018,2019,2020,2021,2022,2023,2024),
 "Proporción.PS.PEA"=c(0.0804033367504892,0.0814241847257364,0.0820395283224491,0.0858352186316859,0.0838257498272283,0.0848702401432215,0.0863444709075300)
 ))
-data.frame(cbind(
-"PEA"=c(53936667,55578352,57014967,55385133,58085314,60089308,60663120),
-"Población Sindicalizada"=c(4336688,4525422,4677481,4753995,4869045,5099794,5237925),
-"Año.1t"=c(2018,2019,2020,2021,2022,2023,2024),
-"Proporción PS/PEA"=c(0.080,0.081,0.082,0.086,0.084,0.085,0.086)
-))
 
-Etiqueta <- c("PEA","Población Sindicalizada","1t Año","Proporción PS/PEA")
+# "Proporción de la población sindicalizada sobre la PEA, 1t 2018-2024"
+  #title= "Proporción de la población sindicalizada sobre la PEA, 1t 2018-2024",
 
 local({
 library(survey)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
-# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
+# Crear el gráfico de línea
 p <- ggplot(pea.ps, aes(x = A.o.1t, y = Proporción.PS.PEA)) +
   geom_line(linewidth=2,color = "deeppink4") +
   geom_point(color = "firebrick4",
   #fill = "firebrick3",
   size=8)+
- #scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= "Proporción de la población sindicalizada sobre la PEA, 1t 2018-2024",
+  labs(
   x = "Año",
   y = "Proporción")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
-        print(p)
+         print(p)
     })
   rk.graph.off()
 })
-
-## Por Rama rama_est1
-
-library(forcats)
-pea[["variables"]][["rama_est1"]] <- fct_drop(pea[["variables"]][["rama_est1"]])
-Población ocupada
-
-local({
-library(survey)
-library(dplyr)
-library(splitstackshape)
-
-# Con el objeto 'pea' de clase survey.design2 y la variable 'p3i' categórica
-# Calcular el total ponderado por año y ent.z
-est <- svyby(~rama_est1, ~year + p3i, pea, svytotal, na.rm=TRUE)
-
-columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
-# Eliminamos las columnas especificadas
-est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
-library(tidyr)
-piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
-library(tidyr)
-piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
-#Use
-piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
-piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "p3i" = "p3i","respuesta" = "variable_2"))
-
-columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado","variable_1")
-
-# Eliminamos las columnas especificadas
-piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
-piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
-.GlobalEnv$estim$rama_est1_y_p3i  <-piv3 #este es en PEA
-})
-
-# Crear el gráfico
-local({
-library(survey)
-library(ggplot2)
-library(RColorBrewer)
-library(stringr)
-piv3 <- estim$rama_est1_y_p3i
-# Crear el gráfico de línea con facetas por respuesta y color por nivel de variable
-p <- ggplot(piv3, aes(x = year, y = recuento, color = p3i, group = p3i)) +
-  geom_line() +
-  geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
-  facet_wrap(~respuesta, nrow = 3) +
- scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(pea[["variables"]][["rama_est1"]]),
-  x = "Año", y = "Total Ponderado", color = "Nivel de respuesta",
-  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
-rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
-    try({
-        print(p)
-    })
-  rk.graph.off()
-})
-
-## p3i por rama_est1 (tarda 23 min. aprox)
-
-# tbls <- list()
-
-library("dplyr")
-library("survey")
-library("gtsummary")
-
-theme_gtsummary_language(
-  language = "es",
-  decimal.mark = NULL,
-  big.mark = NULL,
-  iqr.sep = NULL,
-  ci.sep = NULL,
-  set_theme = TRUE
-)
-
-theme_gtsummary_compact(set_theme = TRUE, font_size = 8)
-
-##Tabla de PEA por año, rama y p3i
-
-##
-local({
-library("dplyr")
-tbl <- pea %>%
-tbl_strata(
-strata = "year",
-.tbl_fun =
-~ .x %>%
-tbl_svysummary(
-  by = rama_est1,
-  statistic = list(p3i ~ "{n} ({p})"),
-  digits = list(p3i ~ c(0, 1)),
-  #percent = "row",
-  label= p3i~rk.get.label(pea$variables$p3i), #Las etiquetas desde el survey design original.
-  include = "p3i")
-)
-rk.print(tbl)
-.GlobalEnv$tbls$p3i_rama_est1 <- tbl
-})
-
-## Filtrar p3i con "Sí"
-local({
-## Computar
-.GlobalEnv$p3i_si  <- subset(pea,subset=p3i%in%"Sí")
-for(i in 1:length(names(p3i_si$variables))){
-	 attr(.GlobalEnv$p3i_si$variables[[names(p3i_si$variables)[i]]],".rk.meta") = attr(pea$variables[[names(p3i_si$variables)[i]]],".rk.meta")
-} })
-
-nrow(p3i_si[["variables"]])
-
 
 ## Gráfica 2. Población sindicalizada por sexo, 1t 2018 a 2024
 ## SVYby SEX
@@ -286,42 +98,32 @@ local({
 library(survey)
 library(dplyr)
 library(splitstackshape)
-
-# Con el objeto 'pea' de clase survey.design2 y la variable 'p3i' categórica
-
-# Calcular el total ponderado por año y ent.z
-est <- svyby(~sex, ~year , p3i_si, svytotal, na.rm=TRUE)
-
-# columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
-# # Eliminamos las columnas especificadas
-# est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
+library(forcats)
+# Con el objeto 'p3i_si' de clase survey.design2 y la variable 'p3i' categórica
+# Calcular el total ponderado por año
+est <- subset(des.1,
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
+svyby(~sex, ~year , ., svytotal, na.rm=TRUE)
 library(tidyr)
-piv1<- pivot_longer(est, 2:3, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
+piv1<- pivot_longer(est, 2:3,
+names_to = "respuesta", values_to = "recuento",
+values_drop_na = FALSE,
+names_repair="universal")
 library(tidyr)
 piv2<- pivot_longer(est, 4:5, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
-#Use
 piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
 piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year","respuesta" = "variable_2"))
-
 columnas_a_eliminar <- c("sexHombre","sexMujer","se.sexHombre",	"se.sexMujer","variable_1")
-
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
-
 piv3[["respuesta"]] <- gsub("sex", "", piv3[["respuesta"]] )
+piv3[["respuesta"]] <- fct_rev(piv3[["respuesta"]])
 .GlobalEnv$estim$sex_p3i_si  <-piv3
-
 })
 
-library(forcats)
-estim[["sex_p3i_si"]][["respuesta"]] <- fct_rev(estim[["sex_p3i_si"]][["respuesta"]] )
-
 # Crear el gráfico
+  #title= rk.get.label(p3i_si[["variables"]][["sex"]]),
 local({
 library(survey)
 library(ggplot2)
@@ -334,8 +136,62 @@ p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respues
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   #facet_wrap(~respuesta, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(p3i_si[["variables"]][["sex"]]),
+  labs(
   x = "Año", y = "Total Ponderado", color = "Nivel de sex",
+  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
+rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
+    try({
+         print(p)
+    })
+   rk.graph.off()
+})
+
+## Gráfica 3. Clasificación de la población ocupada según sector de actividades-Totales, 1t 2018 a 2024
+# [1] "Clasificación de la población ocuapda según sector de actividades-Totales"
+# rama_est1 por población sindicalizada (p3i)
+# Tarda aproximadamente 3 min con gpu dedicada
+
+local({
+library(survey)
+library(dplyr)
+library(splitstackshape)
+library(tidyr)
+# Con el objeto 'des.1' de clase survey.design2  por la variable "rama_est1".
+# Calcular el total ponderado por año y la variable 'p3i' categórica
+est <- svyby(~rama_est1, ~year + p3i, des.1, svytotal, na.rm=TRUE)
+columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
+# Eliminamos las columnas especificadas
+est <- est[, -which(names(est) %in% columnas_a_eliminar)]
+piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
+piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
+piv2 <- cSplit(piv2, "variable", ".")
+piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "p3i" = "p3i","respuesta" = "variable_2"))
+columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado","variable_1")
+# Eliminamos las columnas especificadas
+piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
+## Computar
+piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]] )
+.GlobalEnv$estim$rama_est1_y_p3i  <-piv3
+})
+
+# Crear el gráfico
+  #title= rk.get.label(des.1[["variables"]][["rama_est1"]]),
+local({
+library(survey)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+piv3 <- estim$rama_est1_y_p3i
+# Crear el gráfico de línea con facetas por respuesta y color por nivel de variable
+p <- ggplot(piv3, aes(x = year, y = recuento, color = p3i, group = p3i)) +
+  geom_line() +
+  geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
+  facet_wrap(~respuesta, nrow = 3) +
+ scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
+  labs(
+  x = "Año",
+  y = "Total Ponderado",
+  color = "Nivel de respuesta",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
@@ -344,101 +200,37 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
-## p3i por rama_est1 (tarda 23 min. aprox)
-
-# tbls <- list()
-
-library("dplyr")
-library("survey")
-library("gtsummary")
-
-
-theme_gtsummary_language(
-  language = "es",
-  decimal.mark = NULL,
-  big.mark = NULL,
-  iqr.sep = NULL,
-  ci.sep = NULL,
-  set_theme = TRUE
-)
-
-theme_gtsummary_compact(set_theme = TRUE, font_size = 8)
-
-local({
-library("dplyr")
-tbl <- tbl_svysummary(p3i_si,
-  by = year,
-  statistic = list(sex ~ "{n} ({p})"),
-  digits = list(sex ~ c(0, 1)),
-  #percent = "row",
-  label= sex~rk.get.label(p3i_si$variables$sex), #Las etiquetas desde el survey design original.
-  include = "sex")
-rk.print(tbl)
-.GlobalEnv$tbls$sex_p3i_si <- tbl
-})
-
-local({
-library("dplyr")
-tbl <- p3i_si %>%
-tbl_strata(
-strata = "year",
-.tbl_fun =
-~ .x %>%
-tbl_svysummary(
-  by = sex,
-  statistic = list(rama_est1 ~ "{n} ({p})"),
-  digits = list(rama_est1 ~ c(0, 1)),
-  #percent = "row",
-  label= rama_est1~rk.get.label(p3i_si$variables$rama_est1), #Las etiquetas desde el survey design original.
-  include = "rama_est1")
-)
-rk.print(tbl)
-.GlobalEnv$tbls$p3i_rama_est1 <- tbl
-})
-
 ## Gráfica 4. Clasificación de la población ocupada sindicalizada según sector de actividades-Totales 1t 2018-2024
 
 local({
+#Preparar
 library(survey)
 library(dplyr)
 library(splitstackshape)
-
-# Con el objeto 'pea' de clase survey.design2 y la variable 'p3i' categórica
-
-
-# Calcular el total ponderado por año y ent.z
-est <- svyby(~sex, ~year+rama_est1 , p3i_si, svytotal, na.rm=TRUE)
-
-# columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
-# # Eliminamos las columnas especificadas
-# est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
 library(tidyr)
+library(forcats)
+# Con el objeto 'pea' de clase survey.design2 y la variable 'p3i' categórica
+# Calcular el total ponderado por año y
+est <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
+svyby(~sex, ~year+rama_est1 , ., svytotal, na.rm=TRUE)
 piv1<- pivot_longer(est, 3:4, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
 library(tidyr)
 piv2<- pivot_longer(est, 5:6, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
-#Use
 piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
 piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year","rama_est1" = "rama_est1","respuesta" = "variable_2"))
-
 columnas_a_eliminar <- c("sexHombre","sexMujer","se.sexHombre",	"se.sexMujer","variable_1")
-
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
 # Sustituir sex con ""
 piv3[["respuesta"]] <- gsub("sex", "", piv3[["respuesta"]] )
-.GlobalEnv$estim$sex_p3i_si_est1  <-piv3
-
+piv3[["respuesta"]] <- fct_rev(piv3[["respuesta"]] )
+.GlobalEnv$estim$sex_p3i_si_est1 <- piv3
 })
 
-library(forcats)
-estim[["sex_p3i_si_est1"]][["respuesta"]] <- fct_rev(estim[["sex_p3i_si_est1"]][["respuesta"]] )
-
 # Crear el gráfico
+  #title= rk.get.label(p3i_si[["variables"]][["sex"]]),
 local({
 library(survey)
 library(ggplot2)
@@ -451,62 +243,29 @@ p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respues
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   facet_wrap(~rama_est1, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(p3i_si[["variables"]][["sex"]]),
+  labs(
   x = "Año", y = "Total Ponderado", color = "Nivel de sex",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
         print(p)
-    })
+   })
   rk.graph.off()
 })
 
 ## EDAD
-
-
-local({
-library("dplyr")
-tbl <- p3i_si %>%
-tbl_svysummary(
-  by = year,
-  statistic = list(eda ~ "{mean}±{sd} ({p25}, {median}, {p75})"),
-  #percent = "row",
-  label= eda~rk.get.label(p3i_si$variables$eda), #Las etiquetas desde el survey design original.
-  include = "eda")
-rk.print(tbl)
-.GlobalEnv$tbls$eda_p3i_si <- tbl
-})
-
-local({
-library("dplyr")
-tbl <- p3i_si %>%
-tbl_strata(
-strata = "year",
-.tbl_fun =
-~ .x %>%
-tbl_svysummary(
-  by = sex,
-  statistic = list(eda ~ "{mean}±{sd} ({p25}, {median}, {p75})"),
-  digits = list(eda ~ c(1,0,0,0,0)),
-  #percent = "row",
-  label= eda~rk.get.label(p3i_si$variables$eda), #Las etiquetas desde el survey design original.
-  include = "eda")
-)
-rk.print(tbl)
-.GlobalEnv$tbls$eda_sex_p3i_si <- tbl
-})
-
-
 ## Gráfica 5. Histograma de Distribución de Edades en el primer trimestre de 2018
 # Histograma por edad
-
-
+            #title = "Distribución de Edades en la Muestra en 1t 2018"
+###
 local({
 library("dplyr")
 library("survey")
 library("ggplot2")
 library("questionr")
-    p <- p3i_si %>%
+    p <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
 subset(subset= year%in%"2018") %>%
     ggsurvey() +
     aes(x = eda) +
@@ -519,7 +278,6 @@ subset(subset= year%in%"2018") %>%
         labs(
             x = "Edad",
             y = "Frecuencia",
-            title = "Distribución de Edades en la Muestra en 1t 2018"
              )
     rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
         try({
@@ -529,14 +287,15 @@ subset(subset= year%in%"2018") %>%
     })
 
 ##Gráfica 6. Histograma de Distribución de Edades en el primer trimestre de 2021
-
-local({
+            #title = "Distribución de Edades en la Muestra en 1t 2021"
 local({
 library("dplyr")
 library("survey")
 library("ggplot2")
 library("questionr")
-    p <- p3i_si %>%
+    p <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
 subset(subset= year%in%"2021") %>%
     ggsurvey() +
     aes(x = eda) +
@@ -549,22 +308,24 @@ subset(subset= year%in%"2021") %>%
         labs(
             x = "Edad",
             y = "Frecuencia",
-            title = "Distribución de Edades en la Muestra en 1t 2021"
              )
     rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
         try({
-            print(p)
+             print(p)
         })
     rk.graph.off()
     })
 
 ## Gráfica 7. Histograma de Distribución de Edades en el primer trimestre de 2024
-
+            #title = "Distribución de Edades en la Muestra en 1t 2024"
 local({
 library("dplyr")
+library("survey")
 library("ggplot2")
 library("questionr")
-p <- p3i_si %>%
+    p <-  subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
 subset(subset= year%in%"2024") %>%
     ggsurvey() +
     aes(x = eda) +
@@ -577,48 +338,84 @@ subset(subset= year%in%"2024") %>%
         labs(
             x = "Edad",
             y = "Frecuencia",
-            title = "Distribución de Edades en la Muestra en 1t 2024"
              )
     rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
         try({
-            print(p)
+             print(p)
         })
     rk.graph.off()
     })
 
 
+
+##Tabla 4. Estadísticos descriptivos de la Edad para la Población Sindicalizada en el periodo 2018-2024
 ## Crear estadísticos con la media de la edad
+local({
+library("dplyr")
+tbl <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí"))%>%
+tbl_svysummary(
+  by = year,
+  statistic = list(eda ~ "{mean}±{sd} ({p25}, {median}, {p75})"),
+  label= eda~rk.get.label(des.1$variables$eda), #Las etiquetas desde el survey design original.
+  include = "eda")
+rk.print(tbl)
+.GlobalEnv$tbls$eda_p3i_si <- tbl
+})
+
+
+## Tabla 5. Estadísticos descriptivos de la Edad para la Población Sindicalizada por Sexo en el periodo 2018-2024
+local({
+library("dplyr")
+tbl <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
+tbl_strata(
+strata = "year",
+.tbl_fun =
+~ .x %>%
+tbl_svysummary(
+  by = sex,
+  statistic = list(eda ~ "{mean}±{sd} ({p25}, {median}, {p75})"),
+  digits = list(eda ~ c(1,0,0,0,0)),
+  label= eda~rk.get.label(des.1$variables$eda), #Las etiquetas desde el survey design original.
+  include = "eda")
+)
+rk.print(tbl)
+.GlobalEnv$tbls$eda_sex_p3i_si <- tbl
+})
 
 ##Gráfica 8. Media de la edad de la población mayor de 14 años por sexo
-
 local({
+library(survey)
+library(forcats)
 est <- svyby(~eda, ~year + sex, des.1 , svymean, na.rm=TRUE)
 est$sex <- fct_rev(est$sex)
 .GlobalEnv$estim$eda_svymean_y_sex <- est
 })
 
+
+#Crear el gráfico
+  #title= rk.get.label(des.1[["variables"]][["sex"]]), # Se omite el título.
 local({
 library(survey)
 #library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
-library(forcats)
-
 # Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
-
-
-# Calcular el total ponderado por año y ent.z
+# Calcular el total ponderado por año
 est <- estim$eda_svymean_y_sex
 # Crear el gráfico
-# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
+# Crear el gráfico de línea
 p <- ggplot(est, aes(x = year, y = eda, color = sex, group = sex)) +
   geom_line() +
   geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
-  #facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(des.1[["variables"]][["sex"]]),
-  x = "Año", y = "Media estimada", color = "Nivel de sex",
+  labs(x = "Año",
+  y = "Media estimada",
+  color = "Nivel de sex",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
@@ -628,14 +425,18 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
 })
 
 ## Gráfica 9. Media de la edad de la población mayor de 14 años económicamente activa por sexo
-pea <- subset(des.1, clase1 %in% "Población económicamente activa")
-
 local({
-est <- svyby(~eda, ~year + sex, pea , svymean, na.rm=TRUE)
+library("dplyr")
+library("survey")
+library("forcats")
+est <- subset(des.1, clase1 %in% "Población económicamente activa") %>%
+svyby(~eda, ~year + sex, pea , svymean, na.rm=TRUE)
 est$sex <- fct_rev(est$sex)
 .GlobalEnv$estim$pea_eda_svymean_y_sex <- est
 })
 
+#Se crea el gráfico
+  #title= rk.get.label(pea[["variables"]][["sex"]]),
 local({
 library(survey)
 #library(dplyr)
@@ -643,21 +444,19 @@ library(ggplot2)
 library(RColorBrewer)
 library(stringr)
 library(forcats)
-
 # Con el objeto 'pea_eda_svymean_y_sex' de clase survey.design2 y la variable 'p3i' categórica
-
 # Con la tabla de la media ponderada pea_eda_svymean_y_sex
 est <- estim$pea_eda_svymean_y_sex
-# Crear el gráfico
-# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
-p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
+# Crear el gráfico de línea
+p <- ggplot(est, aes(x = year, y = eda, color = sex, group = sex)) +
   geom_line() +
   geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
-  #facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(des.1[["variables"]][["sex"]]),
-  x = "Año", y = "Media estimada", color = "Nivel de sex",
-  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
+  labs(
+    x = "Año",
+    y = "Media estimada",
+    color = "Nivel de sex",
+    caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
         print(p)
@@ -666,40 +465,34 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
 })
 
 ## Gráfica 10. Media de edad de la población ocpada por sexo
-
-
-library("survey")
-pob_ocup <- subset(pea, clase2 %in% "Población ocupada")
-
-#estim <- list()
-
 local({
-est <- svyby(~eda, ~year + sex, pob_ocup , svymean, na.rm=TRUE)
+library("dplyr")
+library("survey")
 library("forcats")
+est <- subset(des.1, clase1 %in% "Población económicamente activa" &
+clase2 %in% "Población ocupada") %>%
+svyby(~eda, ~year + sex, ., svymean, na.rm=TRUE)
 est$sex <- fct_rev(est$sex)
-.GlobalEnv$estim$eda_svymean_y_sex <- est
+.GlobalEnv$estim$po_eda_svymean_y_sex <- est
 })
 
-
+# Crear el gráfico
+ #title= "Media de edad de la población ocupada por sexo",
 local({
 library(survey)
-#library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
 library(forcats)
 # Calcular el total ponderado por año
-est <- estim$eda_svymean_y_sex
-# Crear el gráfico
-# Crear el gráfico de línea y color por nivel de variable
+est <- estim$po_eda_svymean_y_sex
 # Crear el gráfico
 # Crear el gráfico de línea con color por nivel de variable
-p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
+p <- ggplot(est, aes(x = year, y = eda, color = sex, group = sex)) +
   geom_line() +
   geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
- # labs(title= rk.get.label(pea[["variables"]][["sex"]]),
- labs(title= "Media de edad de la población ocupada por sexo",
+ labs(
   x = "Año",
   y = "Media estimada",
   color = "Nivel de sex",
@@ -711,112 +504,68 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
-
-## Tabla
-
-library("survey")
+## Gráfica 11. Media de la edad de la población sindicalizada por sexo
+## Filtrar p3i con "Sí"
+# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
+local({
 library("dplyr")
-library("gtsummary")
-
-theme_gtsummary_language(
-  language = "es",
-  decimal.mark = NULL,
-  big.mark = NULL,
-  iqr.sep = NULL,
-  ci.sep = NULL,
-  set_theme = TRUE
+library("survey")
+library("forcats")
+est <- subset(des.1, clase1 %in% "Población económicamente activa" &
+clase2 %in% "Población ocupada" &
+p3i%in%"Sí") %>%
+svyby(~eda, ~year + sex, ., svymean, na.rm=TRUE)
+est$sex <- fct_rev(est$sex)
+.GlobalEnv$estim$p3i_sex_svymean_eda_y <- est
+}
 )
 
-theme_gtsummary_compact(set_theme = TRUE, font_size = 8)
-
+# Crear el gráfico
+ #title= "Media de la edad de la población sindicalizada por sexo",
 local({
-tbl <- p3i_si %>%
+library(survey)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+library(forcats)
+# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
+# Calcular el total ponderado por año
+est <- estim$p3i_sex_svymean_eda_y
+# Crear el gráfico de línea
+p <- ggplot(est, aes(x = year, y = eda, color = sex, group = sex)) +
+  geom_line() +
+  geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
+ scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
+ labs(
+  x = "Año",
+  y = "Media estimada",
+  color = "Nivel de sex",
+  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
+rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
+    try({
+         print(p)
+    })
+  rk.graph.off()
+})
+
+
+## Tabla 6. Clasificación de la población sindicalizada ocupada por tamaño de la unidad económica-Subtotales 1er trimestre 2018 a 2024
+local({
+tbl <- subset(des.1, clase1 %in% "Población económicamente activa" &
+clase2 %in% "Población ocupada" &
+p3i%in%"Sí") %>%
 tbl_svysummary(
   by = year,
   statistic = list(ambito2 ~ "{n} ({p})"),
   percent = "column",
-  label= ambito2~rk.get.label(p3i_si$variables$ambito2), #Las etiquetas desde el survey design original.
+  label= ambito2~rk.get.label(des.1$variables$ambito2), #Las etiquetas desde el survey design original.
   include = "ambito2")
 rk.print(tbl)
 .GlobalEnv$tbls$p3i_ambito2 <- tbl
 })
 
-local({
-tbl <- des_1t_18_24 %>%
-tbl_strata(
-strata = "year",
-.tbl_fun =
-~ .x %>%
-tbl_svysummary(
-  by = sex,
-  statistic = list(ambito2 ~ "{n} ({p})"),
-  percent = "row",
-  label= ambito2~rk.get.label(des_1t_18_24$variables$ambito2), #Las etiquetas desde el survey design original.
-  include = "ambito2")
-)
-rk.print(tbl)
-.GlobalEnv$tbls$ambito2_sx <- tbl
-})
-
-## Gráfica 11. Media de la edad de la población sindicalizada por sexo
-## Filtrar p3i con "Sí"
-# local({
-# ## Computar
-# .GlobalEnv$p3i_si  <- subset(pea,subset=p3i%in%"Sí")
-# for(i in 1:length(names(p3i_si$variables))){
-# 	 attr(.GlobalEnv$p3i_si$variables[[names(p3i_si$variables)[i]]],".rk.meta") = attr(pea$variables[[names(p3i_si$variables)[i]]],".rk.meta")
-# } })
-
-nrow(p3i_si[["variables"]])
-#estim <- list()
-
-# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
-local({
-library("survey")
-est <- svyby(~eda, ~year + sex, p3i_si , svymean, na.rm=TRUE)
-library("forcats")
-est$sex <- fct_rev(est$sex)
-.GlobalEnv$estim$p3i_sex_svymean_eda_y <- est3
-}
-)
-
-# Crear el gráfico
-local({
-library(survey)
-#library(dplyr)
-library(ggplot2)
-library(RColorBrewer)
-library(stringr)
-library(forcats)
-
-# Con el objeto 'des.1' de clase survey.design2 y la variable 'p3i' categórica
-
-# Calcular el total ponderado por año y ent.z
-est <- estim$p3i_sex_svymean_eda_y
-# Crear el gráfico
-# Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
-p <- ggplot(est3, aes(x = year, y = eda, color = sex, group = sex)) +
-  geom_line() +
-  geom_errorbar(aes(ymin = eda - 2*se, ymax = eda + 2*se), width = 0.2) +
-  #facet_wrap(~ent.z, nrow = 3) +
- scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
- # labs(title= rk.get.label(pea[["variables"]][["sex"]]),
- labs(
- #title= "Media de la edad de la población sindicalizada por sexo",
-  x = "Año",
-  y = "Media estimada",
-  color = "Nivel de sex",
-  caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
-# rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
-#     try({
-         print(p)
-#     })
-#   rk.graph.off()
-})
-
-
 ## Gráfica 12. Clasificación de las Zonas de Análisis 1t 2018-2024
-### Crear MAPA de la república Mexicana por tres zonas
+# Crear MAPA de la república Mexicana por tres zonas
 
 #Algoritmo de descarga de los datos .zip
 url<-"http://internet.contenidos.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/geografia/marcogeo/889463674658_s.zip"
@@ -826,6 +575,11 @@ if(!file.exists("areas_geoestadisticas_estatales.zip"){
 if(!file.exists("conjunto_de_datos/areas_geoestadisticas_basicas_rurales.dbf")){
   unzip("areas_geoestadisticas_estatales.zip")
 }
+
+local({
+## Computar
+setwd("/direccionar/al/directorio/areas_geoestadisticas_estatales")
+})
 
 #Cargar el paquete terra
 library("terra")
@@ -839,7 +593,6 @@ library("tidyterra")
 # Crear el gráfico para hacer recodificación y colocar colores discretos
  mex  <- shape_estados %>%
    autoplot()
-   print(mex)
 
 # Recodiciación de nombres por ZONAS en mex[["data"]][["NOMGEO"]]
 local({
@@ -857,83 +610,77 @@ rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entra
 	"Número de diferencias después de re-codificar"=sum (mex[["data"]][["NOMGEO"]] != mex[["data"]][["ZONA"]], na.rm=TRUE) + sum (is.na (mex[["data"]][["NOMGEO"]]) != is.na (mex[["data"]][["ZONA"]]))))
 })
 
-### Gráfico con todos los elementos
+# Gráfico con todos los elementos
+             #title = "Agrupación por Zonas de Estudio",
 local({
 library("ggplot2")
 library("tidyterra")
 values <- c('wheat3','tomato1','green3')
 plot <- mex + aes(fill= ZONA) +
-theme_minimal() + # ¿theme_minimal() o theme_void() ?
+theme_minimal() + # Se escogió "theme_minimal()", también se puede usar "theme_void()".
             theme(plot.title = element_text(size=22),
                   legend.key.size = unit(0.5, "cm"),
                   legend.position = "inside",
                   legend.position.inside = c(0.8, 0.7)) +
                   scale_fill_manual(values=values) +
                 scale_color_manual(values=c("black")) +
-                  guides(color = FALSE) +
+                  guides(color = "none") +
              labs(
-             #title = "Agrupación por Zonas de Estudio",
              #fill = "ZONA", # En este caso es el mismo nombre de la variable
              caption = "Fuente: Datos Geográficos 2018 (INEGI),\n Zonas de análisis")
-# rk.graph.on("PNG",1344, 960, pointsize=10.0, res=125, bg = "transparent")
-# try ({
+rk.graph.on("PNG",1344, 960, pointsize=10.0, res=125, bg = "transparent")
+try ({
  	print(plot)
-# })
-# rk.graph.off()
+})
+rk.graph.off()
 })
 
 ## Gráfica 13. Clasificación de la población ocupada sindicalizada según sector de actividades-Totales 1t 2018-2024
 ####
-estim_tam <- list()
 
 local({
 library(survey)
 library(dplyr)
   library(splitstackshape)
-est <- svyby(~rama_est1, ~year + ent.z, p3i_si , svytotal, na.rm=TRUE)
-
-
+est <-  subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i%in%"Sí")) %>%
+svyby(~rama_est1, ~year + ent.z, . , svytotal, na.rm=TRUE)
 # Eliminamos las columnas especificadas
 columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
 est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
 library(tidyr)
 piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
 library(tidyr)
 piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
-#Use
 piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
 piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "ent.z" = "ent.z","respuesta" = "variable_2"))
-
 columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","variable_1","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado")
-
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
 #Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 # Guardar el resultado en la lista estim_tam
-.GlobalEnv$estim_tam$rama_est1_ent.z_y  <-piv3
+.GlobalEnv$estim$rama_est1_ent.z_y  <-piv3
 })
 
   # Crear el gráfico
+  #title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
 local({
 library(survey)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
-piv3 <- estim_tam$rama_est1_ent.z_y
+est <- estim$rama_est1_ent.z_y
 # Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
-p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
+p <- ggplot(est, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
   geom_line() +
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
-  x = "Año", y = "Total Ponderado", color = "Nivel de rama_est1",
+  labs(
+  x = "Año", y = "Total Ponderado",
+  color = "Nivel de rama_est1",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
     try({
@@ -942,62 +689,50 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
   rk.graph.off()
 })
 
-
 ## Gráfica 14
 ##Clasificación de la población ocupada sindicalizada masculina según sector de actividades-Totales 1t 2018-2024
 #### Hombre
-
-
 local({
 library(survey)
 library(dplyr)
+library(tidyr)
   library(splitstackshape)
-
-hombres <- subset(p3i_si, subset=sex%in% "Hombre")
-
-est <- svyby(~rama_est1, ~year + ent.z, hombres , svytotal, na.rm=TRUE)
-
-
+est <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i %in% "Sí") &
+(sex %in% "Hombre")) %>%
+svyby(~rama_est1, ~year + ent.z, . , svytotal, na.rm=TRUE)
 # Eliminamos las columnas especificadas
 columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
 est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
-library(tidyr)
 piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
-library(tidyr)
 piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
 #Use
 piv2 <- cSplit(piv2, "variable", ".")
-#piv3 <- bind_cols(piv1,piv2)
-
 piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "ent.z" = "ent.z","respuesta" = "variable_2"))
-
 columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","variable_1","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado")
-
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
 #Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 # Guardar el resultado en la lista estim_tam
-.GlobalEnv$estim_tam$rama_est1_ent.z_y_hm  <-piv3
-
+.GlobalEnv$estim$rama_est1_ent.z_y_hm  <- piv3
 })
   # Crear el gráfico
+  # title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
 local({
 library(survey)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
-piv3 <- estim_tam$rama_est1_ent.z_y_hm
+est <- estim$rama_est1_ent.z_y_hm
 # Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
-p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
+p <- ggplot(est, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
   geom_line() +
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
-  labs(title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
+  labs(
   x = "Año", y = "Total Ponderado", color = "Nivel de rama_est1",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
@@ -1010,60 +745,50 @@ rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
 ## Gráfica 15
 ##Clasificación de la población ocupada sindicalizada femenina según sector de actividades-Totales 1t 2018-2024
 ## Mujer
-
 local({
 library(survey)
 library(dplyr)
   library(splitstackshape)
-
-mujeres <- subset(p3i_si, subset=sex%in% "Mujer")
-
-est <- svyby(~rama_est1, ~year + ent.z, mujeres , svytotal, na.rm=TRUE)
-
-
+est <- subset(des.1,                              #Filtrar
+(clase1 %in% "Población económicamente activa") &
+(p3i %in% "Sí") &
+(sex %in% "Mujer")) %>%
+svyby(~rama_est1, ~year + ent.z, . , svytotal, na.rm=TRUE)
 # Eliminamos las columnas especificadas
 columnas_a_eliminar <- c("rama_est1No aplica","se.rama_est1No aplica")
 est <- est[, -which(names(est) %in% columnas_a_eliminar)]
-
 library(tidyr)
 piv1<- pivot_longer(est, 3:6, names_to = "respuesta", values_to = "recuento", values_drop_na = FALSE,names_repair="universal")
 library(tidyr)
 piv2<- pivot_longer(est, 7:10, names_to = "variable", values_to = "se", values_drop_na = FALSE,names_repair="universal")
-
 #Use
 piv2 <- cSplit(piv2, "variable", ".")
 #piv3 <- bind_cols(piv1,piv2)
-
 piv3 <- left_join(x=piv1, y=piv2, by = c("year" = "year", "ent.z" = "ent.z","respuesta" = "variable_2"))
-
 columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.rama_est1Terciario","se.rama_est1No.especificado","variable_1","rama_est1Primario","rama_est1Secundario","rama_est1Terciario","rama_est1No.especificado")
-
 # Eliminamos las columnas especificadas
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
-
-
 #Sustituir "rama_est1" con "".
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]])
 # Guardar el resultado en la lista estim_tam
-.GlobalEnv$estim_tam$rama_est1_ent.z_y_mj  <-piv3
-
+.GlobalEnv$estim$rama_est1_ent.z_y_mj  <-piv3
 })
 
 # Crear el gráfico
+  #title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
 local({
 library(survey)
 library(ggplot2)
 library(RColorBrewer)
 library(stringr)
-piv3 <- estim_tam$rama_est1_ent.z_y_hm
+est <- estim$rama_est1_ent.z_y_mj
 # Crear el gráfico de línea con facetas por ent.z y color por nivel de variable
-p <- ggplot(piv3, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
+p <- ggplot(est, aes(x = year, y = recuento, color = respuesta, group = respuesta)) +
   geom_line() +
   geom_errorbar(aes(ymin = recuento - 2*se, ymax = recuento + 2*se), width = 0.2) +
   facet_wrap(~ent.z, nrow = 3) +
  scale_color_brewer(palette = "Set1", labels = function(x) str_wrap(x, width = 20)) +  # Usar paleta Set1
   labs(
-  title= rk.get.label(p3i_si[["variables"]][["rama_est1"]]),
   x = "Año", y = "Total Ponderado", color = "Nivel de rama_est1",
   caption= "Las barras de error se calcularon con ± 2 veces el error estándar.")
 rk.graph.on("PNG",1224, 720, pointsize=10.0, res=125, bg = "transparent")
