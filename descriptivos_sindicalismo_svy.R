@@ -3,7 +3,7 @@
 #Establecer el directorio de trabajo
 local({
 ## Computar
-setwd("/dirigir/al/directorio/con/des1.RData")
+setwd("/dirigir/al/directorio/con/des1.RData") #Producto del escript "Import_svy.R" en el repositorio: "https://github.com/AlfCano/enoe_ampliado"
 })
 
 ## Prepara el entorno
@@ -609,6 +609,8 @@ rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entra
 	"Variable de salida"="mex[[\"data\"]][[\"ZONA\"]]",
 	"Número de diferencias después de re-codificar"=sum (mex[["data"]][["NOMGEO"]] != mex[["data"]][["ZONA"]], na.rm=TRUE) + sum (is.na (mex[["data"]][["NOMGEO"]]) != is.na (mex[["data"]][["ZONA"]]))))
 })
+
+rm(shape_estados)
 
 # Gráfico con todos los elementos
              #title = "Agrupación por Zonas de Estudio",
