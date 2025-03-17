@@ -1,6 +1,11 @@
 
 ## Construir el objeto para asistir la importación
 
+
+require("librarian") # Instala el paquete "librarian" si no está previamente instalado y lo carga en la sesión.
+shelf(rio, lookup, dplyr, survey) # Ejecuta la función shelf del paquete librarian. Revisa si los paquetes ya están instalados, si no lo están los instala y los carga en la sesión.
+
+
 # Requiere crear un objeto para repetir el proceso de maneara reiterativa.
 
 local({
@@ -35,7 +40,7 @@ data <- rio::import(e, trust=TRUE)
 
 #Cambia el nombre de cada archivo por el nombre en la variable nom"año".
 
-library(lookup)
+library("lookup")
 names(sdem_coes) <- vlookup(names(sdem_coes),
 caja$import,
 "arch",
@@ -52,8 +57,9 @@ df[["year"]] <- vlookup(i, years,"nom","value")
 }
 })
 
+## Comprobar número de columnas.
 lapply(sdem_coes, ncol)
-
+# Se espera el siguiente número de columnas para cada data.frame:
 # $t1_2018.df
 # [1] 385
 #
@@ -75,8 +81,9 @@ lapply(sdem_coes, ncol)
 # $t1_2024.df
 # [1] 403
 
+## Comprobar número de filas.
 lapply(sdem_coes, nrow)
-
+# Se espera el siguiente número de filas para cada data.frame:
 # $t1_2018.df
 # [1] 287004
 #
@@ -103,33 +110,32 @@ lapply(sdem_coes, nrow)
 # c("p6e","p6f","p6g","p6h","p6i")
 
 
-## Se debe limpiar la codificación
+## Se debe homologar la codificación se debe de las tablas se hace lo siguiente y proceder a la unificación se hace lo siguiente caso por caso:
 
 
-Se homologa la codificación
+# Para homologar la codificación en la ENOE 2018 y 2019 con las subsecuentes del 2020 a la feecha en la variable rama_est2.
 local({
 ##Preparar
 nom <- c("t1_2018.df","t1_2019.df")
 ## Computar
 for(e in nom) {
 df <- sdem_coes[[e]]
-levels(df[["rama_est2"]])[match("Gobierno y organismos internacion",    # En la tabla  2017 y 2018 cambiar "Gobierno y organismos internacion" por:
-levels(df[["rama_est2"]]))] <- "Gobierno y organismos internacionales"  # "Gobierno y organismos internacionales"
+levels(df[["rama_est2"]])[match("Gobierno y organismos internacion",    # En la tabla  2018 y 2019 se cambia "Gobierno y organismos internacion" por:
+levels(df[["rama_est2"]]))] <- "Gobierno y organismos internacionales"  # "Gobierno y organismos internacionales".
 .GlobalEnv$sdem_coes[[e]] <- df
 }
 })
 
-#Zona y Ur son variables 43 y 44. Recodifian en 2018, 2019, 2020
-
+#Zona y Ur son variables 43 y 44. Se eecodifian en las tablas correspondientes al 1t 2018, 2019 y 2020, para que todas las variables tengan los mismos niveles (etiquetas de valor) en la variable de tipo factor "ur".
 local({
 lista <- c("t1_2018.df","t1_2019.df","t1_2020.df")
 ## Computar
 for(e in lista) {
 input <- sdem_coes[[e]][["ur"]]
-# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
+# Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles.
 recoded <- as.character (sdem_coes[[e]][["ur"]])
-recoded[input == "Urbano"] <- "Muestra urbana"
-recoded[input == "Rural"] <- "Muestra complemento y rural"
+recoded[input == "Urbano"] <- "Muestra urbana" # "Urbano" se cambia por la etiqueta de valor "Muestra urbana".
+recoded[input == "Rural"] <- "Muestra complemento y rural" # "Rural" se cambia por la etiqueta de valor "Muestra complemento y rural".
 .GlobalEnv$sdem_coes[[e]][["ur"]] <- as.factor (recoded)
 ## Imprimir el resultado
 rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="sdem_coes[[e]][[\"ur\"]]",
@@ -139,8 +145,7 @@ rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entra
 })
 
 
-# Se homologa la etiqueta para la variable zona
-
+# Se homologa la etiqueta para la variable "zona"
 local({
 lista <- c("t1_2018.df","t1_2019.df","t1_2020.df")
 ## Computar
@@ -148,9 +153,8 @@ for(e in lista) {
 input <- sdem_coes[[e]][["zona"]]
 # Use as.character() como un formato de datos intermedio, para poder añadir o quitar niveles
 recoded <- as.character (sdem_coes[[e]][["zona"]])
-recoded[input == 'Zona ""A""'] <- "Zona 2 Resto del paí­s"
-recoded[input == 'Zona ""B""'] <- "Zona 1 Frontera norte"
-
+recoded[input == 'Zona ""A""'] <- "Zona 2 Resto del paí­s" # 'Zona ""A""' se cambia por la etiqueta de valor "Zona 2 Resto del paí­s"
+recoded[input == 'Zona ""B""'] <- "Zona 1 Frontera norte" #'Zona ""B""' se cambia por la etiqueta de valor "Zona 1 Frontera norte"
 .GlobalEnv$sdem_coes[[e]][["zona"]] <- as.factor (recoded)
 ## Imprimir el resultado
 rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="sdem_coes[[e]][[\"zona\"]]",
@@ -159,10 +163,10 @@ rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entra
 }
 	})
 
-# 2019 Una de las tablas coe/sdem tiene Ciudad de México y/o Distrito federal se repara a nivel de import desde datos abiertos.
+# En el 1t 2019 Una de las tablas coe/sdem tiene Ciudad de México y/o Distrito federal se reparó a nivel de import desde datos abiertos.
 
-# Crear variables ponderadas
-#Para unir las bases de datos a continuación se usará el paquete dplyr, el cualrequiere
+
+#Para unir las tablas con el paquete "dplyr", se cualrequiere que las variables tengan los mismos nombres, por lo que hay que homologar los nombres de los diseños anteriores al 2021 y actualizarlos los nombres equivalentes actuales, en este caso las variables: "est_d",  "t_loc", "cs_p20_des", "cs_p22_des".
 
 local({
 sc <- c("t1_2018.df","t1_2019.df","t1_2020.df")
@@ -176,9 +180,9 @@ df[["cs_p23_des"]] <- df[["cs_p22_des"]]
 }
 })
 
-##Con el comando siguiente se importa desde github la tabla completa con etiquetas y sociodemográficos que se utilizará para etiquetar la unión de las bases de datos que se descargaron anteriormente.
+##Con el comando siguiente se importa desde github la tabla completa con etiquetas y sociodemográficos que se utilizará para aplicar los metadatos a la unión de las bases de datos que se descargaron anteriormente.
 
-Se importa el listado de etiquetas de valor para el set de datos-
+#Se importa el listado de etiquetas de valor para el set de datos-
 sd.cs <- rio::import(caja[["sd_cs"]][["arch"]], trust = TRUE)
 #Actualizar caja con enoe_ampliado
 
@@ -213,23 +217,27 @@ f[[i]] <- v
 }
 })
 
+## Se combinan las tablas.
+## Preparar.
 library("dplyr")
-attach(sdem_coes)
+##Computar y asignar
+attach(sdem_coes) # Adjunta el nombre de la lista sdem_coes a la ruta de la sesión para obtener acceso directo a los nombres de objetos que contiene.
 sc <- t1_2018.df %>%
-        bind_rows(t1_2019.df) %>%
+        bind_rows(t1_2019.df) %>%  # Se usa la función bind_rows para obtener una tabla producto de colocar una encima de la otra con los mismo nombres de columnas.
         bind_rows(t1_2020.df) %>%
         bind_rows(t1_2021.df) %>%
         bind_rows(t1_2022.df) %>%
         bind_rows(t1_2023.df) %>%
         bind_rows(t1_2024.df)
-detach(sdem_coes)
+detach(sdem_coes) #Retiramos de la ruta global el contenido de la lista "sdem_coes".
 
-nrow(sc) #2140686
+ifelse(
+test= nrow(sc) == 2140686, # Si el objeto sc contiene el número de filas esperado,
+yes = rm(sdem_coes, sd.cs), # Entonces se elimina la lista "sdem_coes" y "sd.cs".
+no = NULL # Si es otro valor devuelve NULL.
+)
 
-rm(sdem_coes)
-rm(sd.cs)
-
-#Recodificar "p4d2" #crear hojas de cálculo con los vectores ¿para subset?
+#Recodificar "p4d2" #crear hojas de cálculo con los vectores.
 local({
 ## Computar
 input <- sc[["p4d2"]]
@@ -244,7 +252,7 @@ recoded[input %in% ninguna] <- "Ninguna de las anteriores"
 detach(caja[["p4d"]])
 })
 
-#Se eliminan las variables
+#Se eliminan las variables ca, fac, est_d, t_loc, cs_p20_des y cs_p22_des.
 local({
 df <- sc
 df <- subset(df, select = -c(ca, fac, est_d, t_loc, cs_p20_des, cs_p22_des))
@@ -260,20 +268,15 @@ recoded <- as.character (sc[["ent"]])
 recoded[input %in% c("Aguascalientes","Baja California","Baja California Sur","Coahuila","Chihuahua","Durango","Nayarit","Nuevo León","Sinaloa","Sonora","Tamaulipas","Zacatecas")] <- "Norte"
 recoded[input %in% c("Colima","Ciudad de México","Guanajuato","Hidalgo","Jalisco","México","Michoacán","Querétaro","San Luis Potosí")] <- "Centro"
 recoded[input %in% c("Campeche","Chiapas","Guerrero","Oaxaca","Puebla","Quintana Roo","Tabasco","Tlaxcala","Morelos","Veracruz","Yucatán")] <- "Sur-Este"
-
-#warning ("Algunos valores de entrada se han especificado más de una vez: ", "\"Morelos\"")
 .GlobalEnv$sc[["ent.z"]] <- as.factor (recoded)
 ## Imprimir el resultado
 rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="des_1t_18_24[[\"variables\"]][[\"ent\"]]",
 	"Variable de salida"="des_1t_18_24[[\"variables\"]][[\"ent.z\"]]",
 	"Número de diferencias después de re-codificar"=sum (sc[["ent"]] != sc[["ent.z"]], na.rm=TRUE) + sum (is.na (sc[["ent"]]) != is.na (sc[["ent.z"]]))))
-})
+}) #Se ignora: "Error en Ops.factor(sc[["ent"]], sc[["ent.z"]]):  los conjuntos de niveles de los factores son diferentes" debido a que es el resultado esperado.
 
-#Se ignora: "Error en Ops.factor(sc[["ent"]], sc[["ent.z"]]):   los conjuntos de niveles de los factores son diferentes"
-
-##Crear una variable numérica para contar totales cuando sea creado el diseño muestral.
+##Crear una variable numérica para contar totales cuando sea creado el objeto "survey.design".
 sc[["n"]] <- 1
-
 
 local({
 ## Preparar
@@ -292,7 +295,7 @@ caja$labels,    # la tabla seleccionada "dic",
 })
 
 
- ##Crear el diseño muestral
+##Crear el objeto clase de "diseño de encuesta 2" ("survey.design2")
 
 local({
 library("survey")
@@ -302,4 +305,8 @@ weights = ~fac_tri,
 data = sc, nest=TRUE )
 })
 
-rm(sc)
+ifelse(
+test= nrow(sc) == nrow(des.1[["variables"]]), # Si el objeto sc contiene el número de filas esperado,
+yes = rm(sc), # Entonces se elimina el objeto "sc".
+no = NULL # Si es otro valor devuelve NULL.
+)
