@@ -13,7 +13,7 @@ local({
 library("rio")
 ## Computar
 url_usr <- "https://github.com/AlfCano"
-ruta <- "enoe_ampliado/raw/main/caja"
+ruta <- "enoe_ampliado/raw/main/datos/datos_auxiliares"
 arch <- "caja.RData"
 list <- import(file.path(url_usr,ruta,arch), trust = TRUE)
 ##Asignar
@@ -46,7 +46,7 @@ caja$import,
 "arch",
 "nom")
 
-#Create a Year variable
+## Crear la variable "year" con el año corrspondiente a cada set de datos.
 local({
 library("lookup")
 years <- caja[["import"]]
@@ -140,7 +140,7 @@ recoded[input == "Rural"] <- "Muestra complemento y rural" # "Rural" se cambia p
 ## Imprimir el resultado
 rk.header ("Re-codificar datos categóricos", parameters=list("Variable de entrada"="sdem_coes[[e]][[\"ur\"]]",
 	"Variable de salida"="sdem_coes[[e]][[\"ur\"]]",
-	"Número de diferencias después de re-codificar"=sum (sdem_coes[[e]][["ur"]] != sdem_coes[[e]][["ur"]], na.rm=TRUE) + sum (is.na (sdem_coes[[e]][["ur"]]) != is.na (sdem_coes[[e]][["ur"]]))))
+	"Número de diferencias después de re-codificar"=sum (sdem_coes[[e]][["ur"]] != sdem_coes[[e]][["ur"]], na.rm=TRUE) + sum (is.na (sdem_coes[[e]][["ur"]]) != is.na (sdem_coes[[e]][["ur"]])))) # El output aparece tres veces debido a que se aplicó a los set de datso 2018, 2029 y 2020.
 }
 })
 
@@ -186,12 +186,11 @@ df[["cs_p23_des"]] <- df[["cs_p22_des"]]
 sd.cs <- rio::import(caja[["sd_cs"]][["arch"]], trust = TRUE)
 #Actualizar caja con enoe_ampliado
 
-#Convertir variables de factor las variables en la tabla "df.factors"
+#Convertir variables de factor las variables en la tabla "df.factors" dentro de la lista "caja".
 local({
 library("dplyr")
 library("lookup")
 sct <- caja[["df.factors"]][["df"]]
-
 ## Selecciona las tablas en sct
 for(e in sct){
 f <- sdem_coes[[e]]
@@ -201,8 +200,7 @@ list_names <- r[["vars"]]#enlista las variables deseadas
 for (i in list_names)  {
 f[[i]] <- as.factor(f[[i]]) #es el mismo resultado pues las variables son numéricas
 }
-
-##Asignar etiquetas de valor a factores (niveles)
+#Asignar etiquetas de valor a factores (niveles)
 for (i in list_names) {
 fa <- sd.cs[[i]]
 v <- f[[i]]
