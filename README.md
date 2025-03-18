@@ -1,21 +1,10 @@
----
-title: "Importación de ENOE ampliado y generación del diseño de la encuesta con el paquete 'survey'"
-author: "Alfonso Cano Robles"
-output:
-      "html_document"
-bibliography: "CITATIONS.bib"
-link-citations: TRUE
----
 # enoe ampliado
 El objetivo es desarrollar la importación, limpieza y asignación de metadatos desde "Datos abiertos" (DA) del Instituto Nacional de Estadística Geografía e Información (INEGI) a través del software `R` para unir tres tablas por registros de personas de la Encuesta Nacional de Ocupación y Empleo (ENOE) del primer trimestre (1t) 2018. El producto de este documento es una tabla que contiene la muestra de la población económicamente activa de quince años o más con base en INEGI (2010) para utilización correcta del factor de expansión. Se operacionalizan los DA para “(…) facilitar su acceso, uso, consulta, reutilización y redistribución para cualquier fin” (INEGI, 2014, p. 2), a través del “Data Catalog Vocabulary” (DCAT), de la “Dublin Core Metadata Initiative” (DCMI), para la presentación de los datos estructurados que describen esta base de datos. Los [datos crudos](https://github.com/AlfCano/enoe_ampliado/tree/main/datos/datos_crudos) fueron descargados de los [datos abiertos del INEGI](https://www.inegi.org.mx/programas/enoe/15ymas/#datos_abiertos) tras haber aplicado las pautas disponibles en [Cano 2024](https://www.researchgate.net/publication/389497648_Cano_Robles_-_2024_-_Union_de_tres_tablas_de_ENOE_con_metadatos_desde_Datos_Abiertos_con_R) a los conjuntos de datos 1t desde 2018 hasta 2024.
 
-El  software libre `R` ofrece un entorno para realizar cómputo estadístico y elaborar gráficos. Además, sus librerías (paquetes) permiten efectuar el objetivo para generar etiquetas de variable y de valor. El estándar DA incluye archivos completos de cada categoría y claves para cada variable para ciento cuarenta y seis programas. Y aunque, es posible descargar algunos de estos conjuntos de datos del sitio del INEGI con el paquete `importinegi` [@R-importinegi] o descargar directamente en formato "\*.RData" en otros, ninguna de estas opciones proporciona metadatos. Una forma de obtenerlos es importar archivos SPSS ("\*.sav") o STATA ("\*.dta"), pero estos no son formatos nativos de `R`, lo que puede resultar en pérdida de datos etiquetados o que se dupliquen etiquetas cuando las cadenas de caracteres no están limpias y/o actualizadas.
+El  software libre `R` ofrece un entorno para realizar cómputo estadístico y elaborar gráficos. Además, sus librerías (paquetes) permiten efectuar el objetivo para generar etiquetas de variable y de valor. El estándar DA incluye archivos completos de cada categoría y claves para cada variable para ciento cuarenta y seis programas. Y aunque, es posible descargar algunos de estos conjuntos de datos del sitio del INEGI con el paquete `importinegi` o descargar directamente en formato "\*.RData" en otros, ninguna de estas opciones proporciona metadatos. Una forma de obtenerlos es importar archivos SPSS ("\*.sav") o STATA ("\*.dta"), pero estos no son formatos nativos de `R`, lo que puede resultar en pérdida de datos etiquetados o que se dupliquen etiquetas cuando las cadenas de caracteres no están limpias y/o actualizadas.
 
 
 # Licencia
 
 Se hace público por medio de la [GPL-3.0-only](https://github.com/AlfCano/enoe_ampliado/raw/main/LICENSE).
-
-# Referencias
-
 
