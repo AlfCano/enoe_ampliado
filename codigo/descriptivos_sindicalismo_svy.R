@@ -176,7 +176,7 @@ columnas_a_eliminar <- c("se.rama_est1Primario","se.rama_est1Secundario","se.ram
 piv3 <- piv3[, -which(names(piv3) %in% columnas_a_eliminar)]
 ## Computar
 piv3[["respuesta"]] <- gsub("rama_est1", "", piv3[["respuesta"]] )
-.GlobalEnv$estim$rama_est1_y_p3i  <-piv3
+.GlobalEnv$estim$rama_est1_y_p3i  <- piv3
 })
 
 # Crear el gráfico
